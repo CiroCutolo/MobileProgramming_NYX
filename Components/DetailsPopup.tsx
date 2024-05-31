@@ -5,7 +5,7 @@ interface Evento {
   id: number;
   titolo: string;
   descrizione: string;
-  date: string;
+  data_evento: string;
   organizzatore: string;
   partecipanti: number;
 }
@@ -32,10 +32,10 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
                 <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
                 <Image 
                   style={styles.eventImagePopup} 
-                  source={require('./imgs/Artboard_Copy_231.jpg')} 
+                  source={require('./imgs/Nyx_icon.jpg')} 
                 />
                 <View style={styles.eventInfosContainerPopup}>
-                    <Text style={styles.eventDatePopup}>Data: {item.date}</Text>
+                    <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
                     <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
                     <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatore}</Text>
                     <Text style={styles.eventParticipantsPopup}>{item.partecipanti}</Text>
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popup: {
-    backgroundColor: '#917ea3',
+    backgroundColor: '#f5ebcf',
     padding: 20,
     borderRadius: 20,
     width: 350,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     alignSelf: 'center',
     marginBottom: 10,
-    color: '#FFFFFF',
+    color: '#050d25',
   },
   eventInfosContainerPopup: {
     top: 20
@@ -82,22 +82,22 @@ const styles = StyleSheet.create({
   eventDatePopup: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#FFFFFF',
+    color: '#050d25',
   },
   eventDescriptionPopup: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#FFFFFF',
+    color: '#050d25',
   },
   eventOrganizerPopup: {
     fontSize: 16,
     marginBottom: 10,
-    color: '#FFFFFF',
+    color: '#050d25',
     top: 150
   },
   eventParticipantsPopup: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: '#050d25',
     alignSelf: 'flex-end',
     top: 145
   },

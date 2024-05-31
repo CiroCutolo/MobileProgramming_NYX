@@ -9,7 +9,7 @@ const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
 const App = () => {
   const [result, setResult] = useState('');
-  
+
   useEffect(() => {
     async function prepareDB() {
       const db = await dbPromise;
@@ -20,18 +20,16 @@ const App = () => {
     prepareDB();
   }, []);
 
-const aggiungiEvento = async () => {
-  try {
-    const db = await dbPromise;
-    await db.executeSql('INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, partecipanti ) VALUES (?, ?, ?, ?, ?)', ['FestaDrogante', 'In questa festa non ci si droga', '2024-06-28', 'Pippo Baudo', 30]);
-    setResult('Aggiunto ');
-  } catch (error) {
-    console.error('Errore nell\'aggiungere l\'evento', error);
-    setResult('Errore nell\'aggiungere l\'evento.');
-  }
-};
-
-
+  const aggiungiEvento = async () => {
+    try {
+      const db = await dbPromise;
+      await db.executeSql('INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, partecipanti) VALUES (?, ?, ?, ?, ?)', ['FestaBrutta', 'In questa festa ti fai la palla a terra', '2023-06-28', 'Myke Buongiorno', 100]);
+      setResult('Aggiunto ');
+    } catch (error) {
+      console.error('Errore nell\'aggiungere l\'evento', error);
+      setResult('Errore nell\'aggiungere l\'evento.');
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>

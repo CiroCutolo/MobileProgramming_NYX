@@ -14,6 +14,7 @@
     "react": "18.2.0",
     "react-native": "0.74.1",
     "react-native-date-picker": "^5.0.4",
+    "react-native-dropdown-select-list": "^2.0.5",
     "react-native-picker-select": "^9.1.3",
     "react-native-select-dropdown": "^4.0.1",
     "react-native-sqlite-storage": "^6.0.1",

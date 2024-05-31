@@ -33,7 +33,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
 
   const aggiungiPartecipazione = async () => {
     try {
-      if (!nome || !cognome || !date || nome != '^[A-Za-z]+$' || cognome != '^[A-Za-z]+$' || date <= (new Date()) ) {
+      if (!nome || !cognome || !date || nome != '^[A-Za-z]+$' || cognome != '^[A-Za-z]+$') {
         setAffirmativeOrNegative(false);
         setShowPopup(true);
         return;
@@ -86,7 +86,6 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                                                                   chiudiPopup(); 
                                                                   setNome('');
                                                                   setCognome('');
-                                                                  setDate(new Date());
                                                                         }}>
                   <Text style={styles.buttonText}>Conferma</Text>
                 </TouchableOpacity>
@@ -108,7 +107,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popup: {
-    backgroundColor: '#917ea3',
+    backgroundColor: '#F5EBCF',
     padding: 20,
     borderRadius: 20,
     width: 350,
@@ -117,14 +116,14 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: '#917ea3',
+    borderColor: '#050D25',
     borderWidth: 3,
     borderRadius: 10,
     marginBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: '#edf6d6',
+    backgroundColor: '#D9D9D9',
     fontSize: 15,
-    color: 'black',
+    color: '#050D25',
   },
   PopupTitle: {
     fontFamily: 'Arial',
@@ -132,9 +131,10 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
     marginBottom: 15,
+    color: '#050d25'
   },
   button2: {
-    backgroundColor: '#4a3358',
+    backgroundColor: '#050D25',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   buttonText: {
-    color: 'white',
+    color: '#D9D9D9',
     fontSize: 16,
   },
   resultText: {
