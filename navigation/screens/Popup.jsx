@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popup: {
-    backgroundColor: '#917ea3',
+    backgroundColor: '#f5ebcf',
     padding: 20,
     borderRadius: 10,
     width: 350,
@@ -70,12 +70,12 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: '#917ea3',
+    borderColor: '#050d25',
     borderWidth: 3,
     borderRadius: 10,
     marginBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: '#edf6d6',
+    backgroundColor: '#D9D9D9',
     fontSize: 15,
     color: 'black',
   },
@@ -84,14 +84,14 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   button: {
-    backgroundColor: '#4a3358',
+    backgroundColor: '#050d25',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
     width: '48%',
   },
   buttonText: {
-    color: 'white',
+    color: '#D9D9D9',
     fontSize: 16,
   },
 });

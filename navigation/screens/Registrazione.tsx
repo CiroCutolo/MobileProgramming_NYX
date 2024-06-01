@@ -188,8 +188,6 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
             }}
             onCancel={() => setDatePickerVisibility(false)}
             mode="date"
-            textColor="#4a3358"
-            fadeToColor="#4a3358"
             theme="dark"
             maximumDate={new Date()}
           />
@@ -229,7 +227,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#4a3358',
+    backgroundColor: '#f5ebcf',
   },
   resultText: {
     marginTop: 20,
@@ -242,24 +240,24 @@ const styles2 = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#4a3358',
+    backgroundColor: '#f5ebcf',
   },
   form: {
     width: '100%',
   },
   input: {
     height: 40,
-    borderColor: '#917ea3',
+    borderColor: '#050d25',
     borderWidth: 3,
     borderRadius: 10,
     marginBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: '#edf6d6',
+    backgroundColor: '#d9d9d9',
     fontSize: 15,
     color: 'black',
   },
   button: {
-    backgroundColor: '#917ea3',
+    backgroundColor: '#050d25',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
@@ -271,7 +269,7 @@ const styles2 = StyleSheet.create({
   text: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#782b5a',
+    color: '#050d25',
   },
 
 });
