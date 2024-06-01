@@ -74,9 +74,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.mobileprogramming_nyx"
+    namespace "com.progetto"
     defaultConfig {
-        applicationId "com.mobileprogramming_nyx"
+        applicationId "com.progetto"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -116,4 +116,4 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
-apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle");
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

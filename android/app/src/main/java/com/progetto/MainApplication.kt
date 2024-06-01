@@ -1,4 +1,4 @@
-package com.mobileprogramming_nyx
+package com.progetto
 
 import android.app.Application
 import com.facebook.react.PackageList

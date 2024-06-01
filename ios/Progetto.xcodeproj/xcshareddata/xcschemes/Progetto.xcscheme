@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "MobileProgramming_NYX.app"
-               BlueprintName = "MobileProgramming_NYX"
-               ReferencedContainer = "container:MobileProgramming_NYX.xcodeproj">
+               BuildableName = "Progetto.app"
+               BlueprintName = "Progetto"
+               ReferencedContainer = "container:Progetto.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "MobileProgramming_NYXTests.xctest"
-               BlueprintName = "MobileProgramming_NYXTests"
-               ReferencedContainer = "container:MobileProgramming_NYX.xcodeproj">
+               BuildableName = "ProgettoTests.xctest"
+               BlueprintName = "ProgettoTests"
+               ReferencedContainer = "container:Progetto.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MobileProgramming_NYX.app"
-            BlueprintName = "MobileProgramming_NYX"
-            ReferencedContainer = "container:MobileProgramming_NYX.xcodeproj">
+            BuildableName = "Progetto.app"
+            BlueprintName = "Progetto"
+            ReferencedContainer = "container:Progetto.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "MobileProgramming_NYX.app"
-            BlueprintName = "MobileProgramming_NYX"
-            ReferencedContainer = "container:MobileProgramming_NYX.xcodeproj">
+            BuildableName = "Progetto.app"
+            BlueprintName = "Progetto"
+            ReferencedContainer = "container:Progetto.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
