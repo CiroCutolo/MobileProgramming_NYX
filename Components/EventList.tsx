@@ -12,7 +12,7 @@ interface Evento {
   id: number;
   titolo: string;
   descrizione: string;
-  data_evento: string; // Assicurati che questo nome corrisponda a quello usato nel DB
+  data_evento: string;
   organizzatore: string;
   partecipanti: number;
 }
@@ -115,7 +115,7 @@ const EventList: React.FC = () => {
       .then((data) => {
         if (data) {
           setEvents(data);
-          setFilteredEvents(data); // Initially show all events
+          setFilteredEvents(data); 
         }
       })
       .catch((err) => console.log(err));
@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#050d25', // Extremely dark purple
+    backgroundColor: '#050d25', 
     padding: 20,
     alignContent: 'space-evenly',
   },
@@ -247,15 +247,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 20,
-    borderColor: '#050d25', // Slightly darker purple
+    borderColor: '#050d25', 
     borderWidth: 5,
-    backgroundColor: '#050d25', // Slightly darker purple
+    backgroundColor: '#050d25', 
     margin: 10,
     padding: 10,
-    shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
-    shadowOffset: { width: 8, height: 8 }, // Ombreggiatura solo in basso
+    shadowColor: '#FFFFFF', 
+    shadowOffset: { width: 8, height: 8 }, 
     shadowOpacity: 0.8,
-    shadowRadius: 5, // Aumenta il raggio per un'ombreggiatura più morbida
+    shadowRadius: 5, 
     elevation: 5,
   },
   eventIconImg: {
@@ -275,24 +275,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     top: 10,
     fontSize: 16,
-    color: '#D9D9D9', // Light gray for text contrast
+    color: '#D9D9D9', 
   },
   eventDate: {
     flex: 1,
     fontWeight: 'bold',
     top: 5,
     fontSize: 16,
-    color: '#D9D9D9', // Light gray for text contrast
+    color: '#D9D9D9', 
   },
   eventOrganizer: {
     flex: 1,
     fontSize: 16,
-    color: '#D9D9D9', // Light gray for text contrast
+    color: '#D9D9D9', 
   },
   eventParticipants: {
     fontSize: 16,
     alignSelf: 'flex-end',
-    color: '#D9D9D9', // Light gray for text contrast
+    color: '#D9D9D9', 
     fontWeight: 'bold',
   },
   eventAddpersonIcon: {
@@ -307,13 +307,13 @@ const styles = StyleSheet.create({
     height: 45,
     width: 175,
     marginLeft: 10,
-    borderColor: '#D9D9D9', // Light gray for border contrast
+    borderColor: '#D9D9D9', 
     borderWidth: 1,
     borderRadius: 20,
     marginBottom: 10,
     paddingLeft: 8,
     color: '#D9D9D9',
-    backgroundColor: '#050d25', // Slightly darker purple
+    backgroundColor: '#050d25', 
   },
 });
 

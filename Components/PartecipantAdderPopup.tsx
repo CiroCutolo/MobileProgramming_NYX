@@ -33,7 +33,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
 
   const aggiungiPartecipazione = async () => {
     try {
-      if (!nome || !cognome || !date || nome != '^[A-Za-z]+$' || cognome != '^[A-Za-z]+$') {
+      if (!nome || !cognome || !date || date < (new Date())) {
         setAffirmativeOrNegative(false);
         setShowPopup(true);
         return;

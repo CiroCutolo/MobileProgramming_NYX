@@ -48,10 +48,16 @@ export default function MainContainer() {
                             iconName = focused ? 'bar-chart' : 'bar-chart-outline';
                         }
 
-                        return <Ionicons name={iconName} size={28} color={'#f5ebcf'} />;
+                        return <Ionicons name={iconName} size={28} color={'#D9D9D9'} />;
                     },
+                    headerTitleStyle: {color: '#d9d9d9'},
                     headerStyle: {
-                        backgroundColor: '#180529',
+                        backgroundColor: '#050d25',
+                        shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
+                        shadowOffset: { width: 0, height: 8 }, // Ombreggiatura solo in basso
+                        shadowOpacity: 0.8,
+                        shadowRadius: 5, // Aumenta il raggio per un'ombreggiatura più morbida
+                        elevation: 5,
                     },
                     headerRight: () => (
                         <TouchableOpacity onPress={() => navigation.navigate(homeName)}>
@@ -61,9 +67,9 @@ export default function MainContainer() {
                         </TouchableOpacity>
                     ),
                     tabBarActiveTintColor: '#660066',
-                    tabBarInactiveTintColor: '#f6edd5',
+                    tabBarInactiveTintColor: '#d9d9d9',
                     tabBarStyle: {
-                        backgroundColor: '#180529',
+                        backgroundColor: '#050d25',
                     },
                 })}
             >
