@@ -155,7 +155,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
   return (
     <SafeAreaView style={styles2.container}>
       <Text style={styles2.text}>
-        {'REGISTRATI PER PARTECIPARE \n           AI NOSTRI EVENTI\n'}
+        {'REGISTRATI PER AGGIUNGERE \n                I TUOI EVENTI\n'}
       </Text>
       <View style={styles2.form}>
         <TextInput
@@ -188,6 +188,8 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
             }}
             onCancel={() => setDatePickerVisibility(false)}
             mode="date"
+            textColor="#4a3358"
+            fadeToColor="#4a3358"
             theme="dark"
             maximumDate={new Date()}
           />
@@ -227,7 +229,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5ebcf',
+    backgroundColor: '#050d25',
   },
   resultText: {
     marginTop: 20,
@@ -240,24 +242,24 @@ const styles2 = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5ebcf',
+    backgroundColor: '#050d25',
   },
   form: {
     width: '100%',
   },
   input: {
     height: 40,
-    borderColor: '#050d25',
+    borderColor: '#917ea3',
     borderWidth: 3,
     borderRadius: 10,
     marginBottom: 10,
     paddingHorizontal: 10,
-    backgroundColor: '#d9d9d9',
+    backgroundColor: '#edf6d6',
     fontSize: 15,
     color: 'black',
   },
   button: {
-    backgroundColor: '#050d25',
+    backgroundColor: '#917ea3',
     padding: 10,
     borderRadius: 10,
     alignItems: 'center',
@@ -269,7 +271,7 @@ const styles2 = StyleSheet.create({
   text: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#050d25',
+    color: '#917ea3',
   },
 
 });
