@@ -1,10 +1,35 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, StyleSheet, Modal, Text, View, SafeAreaView, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { NavigationContainer } from '@react-navigation/native';
+import SQLite from 'react-native-sqlite-storage';
+
+SQLite.enablePromise(true);
+const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
 export default function Popup({ modalVisible, chiudiPopup }) {
-const navigation= useNavigation();
+  const navigation= useNavigation();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const verificaCredenziali = async () => {
+    try {
+      const db = await dbPromise;
+      const results = await db.executeSql('SELECT * FROM utente WHERE email = ? AND password = ?', [email, password]);
+      if (results[0].rows.length > 0) {
+        // Credenziali corrette
+        chiudiPopup();
+        navigation.navigate('Account',{ isAuthenticated: true });
+      } else {
+        // Credenziali errate
+        setError('Email o password non corrette');
+      }
+    } catch (error) {
+      console.error('Errore nella verifica delle credenziali', error);
+      setError('Errore nella verifica delle credenziali');
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Modal
@@ -20,14 +45,19 @@ const navigation= useNavigation();
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
                 />
                 <TextInput
                   style={styles.input}
                   placeholder="Password"
                   secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
                 />
+                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
                 <View style={styles.buttonContainer}>
-                  <TouchableOpacity style={styles.button} onPress={chiudiPopup}>
+                  <TouchableOpacity style={styles.button} onPress={verificaCredenziali}>
                     <Text style={styles.buttonText}>Accedi</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -93,5 +123,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontSize: 16,
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 });
