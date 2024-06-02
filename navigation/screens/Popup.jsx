@@ -1,25 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { Button, StyleSheet, Modal, Text, View, SafeAreaView, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import React, { useState } from 'react';
+import { Button, StyleSheet, Modal, Text, View, SafeAreaView, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SQLite from 'react-native-sqlite-storage';
 
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-export default function Popup({ modalVisible, chiudiPopup }) {
-  const navigation= useNavigation();
+export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated }) {
+  const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const verificaCredenziali = async () => {
     try {
+      if (!email || !password) {
+        setError('Email e password sono obbligatorie');
+        return;
+      }
       const db = await dbPromise;
-      const results = await db.executeSql('SELECT * FROM utente WHERE email = ? AND password = ?', [email, password]);
+      const results = await db.executeSql(
+        'SELECT * FROM utente WHERE email = ? AND password = ?',
+        [email, password]
+      );
       if (results[0].rows.length > 0) {
         // Credenziali corrette
+        setIsAuthenticated(true);
         chiudiPopup();
-        navigation.navigate('Account',{ isAuthenticated: true });
+        navigation.navigate('Account');
       } else {
         // Credenziali errate
         setError('Email o password non corrette');
@@ -45,6 +53,7 @@ export default function Popup({ modalVisible, chiudiPopup }) {
                 <TextInput
                   style={styles.input}
                   placeholder="Email"
+                  keyboardType="email-address"
                   value={email}
                   onChangeText={setEmail}
                 />
@@ -55,7 +64,7 @@ export default function Popup({ modalVisible, chiudiPopup }) {
                   value={password}
                   onChangeText={setPassword}
                 />
-                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                {error ? <Text style={styles.errorText}>{error}</Text> : null}
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity style={styles.button} onPress={verificaCredenziali}>
                     <Text style={styles.buttonText}>Accedi</Text>

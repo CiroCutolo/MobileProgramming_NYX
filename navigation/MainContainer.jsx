@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavigationContainer, useRoute } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image, TouchableOpacity } from 'react-native';
@@ -20,6 +20,7 @@ const Tab = createBottomTabNavigator();
 
 export default function MainContainer() {
     const [modalVisible, setModalVisible] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const apriPopup = () => {
         setModalVisible(true);
@@ -50,7 +51,7 @@ export default function MainContainer() {
 
                         return <Ionicons name={iconName} size={28} color={'#D9D9D9'} />;
                     },
-                    headerTitleStyle: {color: '#d9d9d9'},
+                    headerTitleStyle: { color: '#d9d9d9' },
                     headerStyle: {
                         backgroundColor: '#050d25',
                         shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
@@ -81,15 +82,20 @@ export default function MainContainer() {
                     component={AccountScreen}
                     listeners={{
                         tabPress: (e) => {
-                            e.preventDefault();
-                            apriPopup();
+                            if (!isAuthenticated) {
+                                e.preventDefault();
+                                apriPopup();
+                            }
                         },
                     }}
                 />
                 <Tab.Screen name="Registrazione" component={Registrazione} options={{ tabBarButton: () => null }} />
             </Tab.Navigator>
-            <Popup modalVisible={modalVisible} chiudiPopup={chiudiPopup} />
+            <Popup 
+                modalVisible={modalVisible} 
+                chiudiPopup={chiudiPopup} 
+                setIsAuthenticated={setIsAuthenticated}
+            />
         </NavigationContainer>
-
     );
 }
