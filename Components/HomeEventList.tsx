@@ -99,7 +99,7 @@ const HomeEventList: React.FC = () => {
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
-      />
+    />  
       {selectedEventUserInsert && (
         <PartecipantAdderPopup
           modalVisible={modalVisibleUserInsert}
@@ -141,9 +141,8 @@ const ZoomableView: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#050d25', // Viola estremamente scuro
+    backgroundColor: '#050d25',
     padding: 20,
     alignContent: 'space-evenly',
   },
@@ -155,15 +154,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 20,
-    borderColor: '#050d25', // Viola leggermente più scuro
+    borderColor: '#050d25',
     borderWidth: 5,
-    backgroundColor: '#050d25', // Viola leggermente più scuro
+    backgroundColor: '#050d25', 
     margin: 10,
     padding: 10,
-    shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
-    shadowOffset: { width: 8, height: 8 }, // Ombreggiatura solo in basso
+    shadowColor: '#FFFFFF', 
+    shadowOffset: { width: 8, height: 8 }, 
     shadowOpacity: 0.8,
-    shadowRadius: 5, // Aumenta il raggio per un'ombreggiatura più morbida
+    shadowRadius: 5,
     elevation: 5,
   },
   eventIconImg: {
@@ -183,24 +182,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     top: 10,
     fontSize: 16,
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9', 
   },
   eventDate: {
     flex: 1,
     fontWeight: 'bold',
     top: 5,
     fontSize: 16,
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9', 
   },
   eventOrganizer: {
     flex: 1,
     fontSize: 16,
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9', 
   },
   eventParticipants: {
     fontSize: 16,
     alignSelf: 'flex-end',
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9', 
     fontWeight: 'bold',
   },
   eventAddpersonIcon: {
@@ -217,7 +216,9 @@ const styles = StyleSheet.create({
     padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#050d25'
+    backgroundColor: '#050d25',
+    elevation: 4,
+    zIndex: 1
   }
 });
 
