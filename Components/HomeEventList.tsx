@@ -75,6 +75,10 @@ const HomeEventList: React.FC = () => {
     setModalVisibleUserInsert(true);
   };
 
+  const handleAddEventPress = () => {
+    navigation.navigate('EventController');
+  };
+
   const renderItem = ({ item }: { item: Evento }) => (
     <ZoomableView>
       <View style={styles.eventContainer}>
@@ -94,7 +98,7 @@ const HomeEventList: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <IconButton buttonStyle={styles.buttonAddEventStyle} iconName='add-circle-outline' iconSize={40} iconColor={'#D9D9D9'} onPress={() => aggiungiEvento()} />
+      <IconButton buttonStyle={styles.buttonAddEventStyle} iconName='add-circle-outline' iconSize={40} iconColor={'#D9D9D9'} onPress={handleAddEventPress} />
       <FlatList style={styles.flatList}
         data={events}
         renderItem={renderItem}
