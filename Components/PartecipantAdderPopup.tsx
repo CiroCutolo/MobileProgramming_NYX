@@ -86,7 +86,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                   open={isDatePickerVisible}
                   date={date}
                   onConfirm={(date) => {
-                    setDate(date);
+                    setDataNascita(date.toISOString().split('T')[0]);
                   }}
                   onCancel={() => setDatePickerVisibility(false)}
                   mode="date"
