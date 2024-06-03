@@ -55,7 +55,7 @@ const HomeEventList: React.FC = () => {
       const updatedEvents = await leggiEvento();
       setEvents(updatedEvents);
     } catch (error) {
-      console.error('Errore nell\'aggiungere l\'evento', error);
+      console.error('Errore nell\'aggiungere l\'evento', error);  
       setResult('Errore nell\'aggiungere l\'evento.');
     }
   };
@@ -98,7 +98,7 @@ const HomeEventList: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
+      <FlatList 
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}

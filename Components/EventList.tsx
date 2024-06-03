@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableWithoutFeedback, Animated, StyleProp, ViewStyle, TextInput } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableWithoutFeedback, Animated, StyleProp, ViewStyle, TextInput, Modal } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import DetailsPopup from './DetailsPopup';  
 import PartecipantAdderPopup from './PartecipantAdderPopup';
@@ -7,6 +7,7 @@ import IconButton from './IconButton';
 import { SelectList } from 'react-native-dropdown-select-list';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import EventPartecipantsPopup from './EventPartecipantsPopup';
 
 interface Evento {
   id: number;
@@ -36,6 +37,32 @@ const leggiEvento = async (): Promise<Evento[]> => {
   } catch (error) {
     console.error('Errore nella lettura degli eventi', error);
     return [];
+  }
+};
+
+const leggiNumeroPartecipanti = async () => {
+  try {
+    const db = await dbPromise;
+    const results = await db.executeSql(`
+    SELECT P.evento_id as evento, COUNT(*) as partecipazioni
+    FROM evento E
+    JOIN partecipazione P ON E.id = P.evento_id
+    GROUP BY P.evento_id
+    `);
+
+    if (results.length > 0) {
+      const rows = results[0].rows;
+      const partecipazioni: { [key: number]: number } = {};
+      for (let i = 0; i < rows.length; i++) {
+        const item = rows.item(i);
+        partecipazioni[item.evento] = item.partecipazioni;
+      }
+      return partecipazioni;
+    }
+    return {};
+  } catch (error) {
+    console.error('Errore nel recuperare i dati sugli eventi:', error);
+    return {};
   }
 };
 
@@ -80,6 +107,8 @@ const EventList: React.FC = () => {
   const [modalVisibleEventDetails, setModalVisibleEventDetails] = useState<boolean>(false);
   const [selectedEventUserInsert, setSelectedEventUserInsert] = useState<Evento | null>(null);
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState<boolean>(false);
+  const [selectedEventPartecipantsList, setSelectedEventPartecipantsList] = useState<Evento | null>(null);
+  const [modalVisiblePartecipantsList, setModalVisiblePartecipantsList] = useState<boolean>(false);
   const [selected, setSelected] = useState("");
   const [searchText, setSearchText] = useState("");
 
@@ -111,23 +140,29 @@ const EventList: React.FC = () => {
   }
 
   useEffect(() => {
-    leggiEvento()
-      .then((data) => {
-        if (data) {
-          setEvents(data);
-          setFilteredEvents(data); 
-        }
-      })
-      .catch((err) => console.log(err));
+    const fetchData = async () => {
+      try {
+        const eventData = await leggiEvento();
+        const partecipazioniData = await leggiNumeroPartecipanti();
+
+        const eventsWithPartecipazioni = eventData.map(event => ({
+          ...event,
+          partecipanti: partecipazioniData[event.id] || 0
+        }));
+
+        setEvents(eventsWithPartecipazioni);
+        setFilteredEvents(eventsWithPartecipazioni);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
-    console.log("Eventi recuperati:", events);
-  }, [events]);
-
-  useEffect(() => {
     handleFilter(selected);
-  }, [selected, searchText]);
+  }, [selected, searchText, events]);
 
   const handleEventPressEventDetails = (item: Evento) => {
     setSelectedEventEventDetails(item);
@@ -139,10 +174,15 @@ const EventList: React.FC = () => {
     setModalVisibleUserInsert(true);
   };
 
+  const handleEventPressEventPartecipants = (item: Evento) => {
+    setSelectedEventPartecipantsList(item);
+    setModalVisiblePartecipantsList(true);
+  };
+
   const renderItem = ({ item }: { item: Evento }) => (
     <ZoomableView onPress={() => handleEventPressEventDetails(item)}>
       <View style={styles.eventContainer}>
-        <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)}></IconButton>
+        <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
         <View>
           <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
         </View>
@@ -150,7 +190,8 @@ const EventList: React.FC = () => {
           <Text style={styles.eventTitle}>{item.titolo}</Text>
           <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
           <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
-          <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
+          <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressEventPartecipants(item)} />
+          <Text style={styles.eventParticipants}>Partecipanti: {item.partecipanti}</Text>
         </View>
       </View>
     </ZoomableView>
@@ -166,44 +207,48 @@ const EventList: React.FC = () => {
     setSelectedEventUserInsert(null);
   };
 
+  const chiudiPopupEventPartecipants = () => {
+    setModalVisiblePartecipantsList(false);
+    setSelectedEventPartecipantsList(null);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBarContainer}>
-      <SelectList
-        setSelected={(val: React.SetStateAction<string>) => setSelected(val)}
-        boxStyles={{ backgroundColor: '#050d25', 
-        height: 45, 
-        width: 175,
-        borderRadius: 20,
-        borderColor: '#D9D9D9',
-        }}
-        placeholder='Seleziona un filtro'
-        inputStyles={{color: '#D9D9D9'}}
-        arrowicon={<FontAwesome name="chevron-down" size={15} color={'#D9D9D9'} />} 
-        searchicon={<FontAwesome name="search" size={15} color={'#D9D9D9'} />} 
-        closeicon={<FontAwesome name="close" size={15} color={'#D9D9D9'} />}
-        searchPlaceholder=''
-        dropdownStyles={{position: 'absolute',
-        top: 40, 
-        width: 175,
-        backgroundColor: '#050d25',
-        borderColor: '#D9D9D9',
-        borderRadius: 10,
-        elevation: 4,
-        zIndex: 1,}}
-        dropdownTextStyles={{color: '#D9D9D9'}}
-        data={data}
-        save="value"
-        onSelect={() => handleFilter(selected)}
-        
-      />
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Cerca per titolo..."
-        placeholderTextColor={'#D9D9D9'}
-        value={searchText}
-        onChangeText={text => setSearchText(text)}
-      />
+        <SelectList
+          setSelected={(val: React.SetStateAction<string>) => setSelected(val)}
+          boxStyles={{ backgroundColor: '#050d25', 
+            height: 45, 
+            width: 175,
+            borderRadius: 20,
+            borderColor: '#D9D9D9',
+          }}
+          placeholder='Seleziona un filtro'
+          inputStyles={{color: '#D9D9D9'}}
+          arrowicon={<FontAwesome name="chevron-down" size={15} color={'#D9D9D9'} />} 
+          searchicon={<FontAwesome name="search" size={15} color={'#D9D9D9'} />} 
+          closeicon={<FontAwesome name="close" size={15} color={'#D9D9D9'} />}
+          searchPlaceholder=''
+          dropdownStyles={{position: 'absolute',
+            top: 40, 
+            width: 175,
+            backgroundColor: '#050d25',
+            borderColor: '#D9D9D9',
+            borderRadius: 10,
+            elevation: 4,
+            zIndex: 1,}}
+          dropdownTextStyles={{color: '#D9D9D9'}}
+          data={data}
+          save="value"
+          onSelect={() => handleFilter(selected)}
+        />
+        <TextInput
+          style={styles.searchBar}
+          placeholder="Cerca per titolo..."
+          placeholderTextColor={'#D9D9D9'}
+          value={searchText}
+          onChangeText={text => setSearchText(text)}
+        />
       </View>
       <FlatList
         data={filteredEvents}
@@ -224,6 +269,13 @@ const EventList: React.FC = () => {
           eventoId={selectedEventUserInsert.id}
         />
       )}
+      {selectedEventPartecipantsList && (
+        <EventPartecipantsPopup
+          modalVisible={modalVisiblePartecipantsList}
+          chiudiPopup={chiudiPopupEventPartecipants}
+          eventId={selectedEventPartecipantsList.id}
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -233,7 +285,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: '#050d25', 
-    padding: 20,
+    //padding: 20,
     alignContent: 'space-evenly',
   },
   searchBarContainer: {
@@ -294,6 +346,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     color: '#D9D9D9', 
     fontWeight: 'bold',
+    right: 2
   },
   eventAddpersonIcon: {
     position: 'absolute',
@@ -315,6 +368,11 @@ const styles = StyleSheet.create({
     color: '#D9D9D9',
     backgroundColor: '#050d25', 
   },
+  eventPartecipantsIcon: {
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    top: 60
+  }
 });
 
 

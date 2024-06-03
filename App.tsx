@@ -11,47 +11,10 @@ const App = () => {
 
   useEffect(() => {
     async function prepareDB() {
-      try {
-        const db = await dbPromise;
-
-        await db.executeSql(
-          `CREATE TABLE IF NOT EXISTS utente (
-            email TEXT PRIMARY KEY,
-            password TEXT NOT NULL,
-            nome TEXT NOT NULL,
-            cognome TEXT NOT NULL,
-            data_nascita DATE NOT NULL
-          );`
-        );
-
-        await db.executeSql(
-          `CREATE TABLE IF NOT EXISTS evento (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            titolo TEXT NOT NULL,
-            descrizione TEXT NOT NULL,
-            data_evento DATE NOT NULL,
-            organizzatore TEXT NOT NULL,
-            capienza INTEGER NOT NULL,
-            FOREIGN KEY(organizzatore) REFERENCES utente(email) ON DELETE CASCADE
-          );`
-        );
-
-        await db.executeSql(
-          `CREATE TABLE IF NOT EXISTS partecipazione (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            cognome TEXT NOT NULL,
-            data_partecipazione DATE NOT NULL,
-            evento_id INTEGER NOT NULL,
-            FOREIGN KEY(evento_id) REFERENCES evento(id) ON DELETE CASCADE
-          );`
-        );
-
-        setResult('Tabelle create con successo');
-      } catch (error) {
-        console.error('Errore nella creazione delle tabelle:', error);
-        setResult('Errore nella creazione delle tabelle.');
-      }
+      const db = await dbPromise;
+      await db.executeSql(
+        'CREATE TABLE IF NOT EXISTS evento (id INTEGER PRIMARY KEY AUTOINCREMENT, titolo TEXT NOT NULL, descrizione TEXT NOT NULL, data_evento DATE NOT NULL, organizzatore TEXT NOT NULL, partecipanti INTEGER NOT NULL);'
+      );
     }
     prepareDB();
   }, []);
