@@ -23,7 +23,6 @@ const App = () => {
             data_nascita DATE NOT NULL
           );`
         );
-
         await db.executeSql(
           `CREATE TABLE IF NOT EXISTS evento (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,10 +31,10 @@ const App = () => {
             data_evento DATE NOT NULL,
             organizzatore TEXT NOT NULL,
             capienza INTEGER NOT NULL,
+            locandina TEXT,
             FOREIGN KEY(organizzatore) REFERENCES utente(email) ON DELETE CASCADE
           );`
         );
-
         await db.executeSql(
           `CREATE TABLE IF NOT EXISTS partecipazione (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,11 +45,8 @@ const App = () => {
             FOREIGN KEY(evento_id) REFERENCES evento(id) ON DELETE CASCADE
           );`
         );
-
-        setResult('Tabelle create con successo');
       } catch (error) {
         console.error('Errore nella creazione delle tabelle:', error);
-        setResult('Errore nella creazione delle tabelle.');
       }
     }
     prepareDB();
@@ -61,7 +57,7 @@ const App = () => {
       const db = await dbPromise;
       await db.executeSql(
         'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
-        ['Festa di Aury', 'siete gay', '2024-06-06', 'Aurora', 2]
+        ['Festa di mamma', 'siete scemi', '2024-06-01', 'Ciro', 100]
       );
       setResult('Evento aggiunto con successo');
     } catch (error) {

@@ -173,6 +173,8 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
           <DatePicker
             modal
             locale='it'
+            title="Seleziona la data di nascita"
+            buttonColor='purple'
             open={isDatePickerVisible}
             date={date}
             onConfirm={(date) => {
