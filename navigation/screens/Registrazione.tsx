@@ -172,6 +172,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         {isDatePickerVisible && (
           <DatePicker
             modal
+            locale='it'
             open={isDatePickerVisible}
             date={date}
             onConfirm={(date) => {
