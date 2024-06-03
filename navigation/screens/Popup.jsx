@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#4a3358',
   },
   view1: {
     flex: 1,
@@ -100,7 +99,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popup: {
-    backgroundColor: '#f5ebcf',
+    backgroundColor: '#edf6d6',
     padding: 20,
     borderRadius: 10,
     width: 350,
