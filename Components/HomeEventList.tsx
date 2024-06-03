@@ -98,7 +98,7 @@ const HomeEventList: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
+      <FlatList 
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}

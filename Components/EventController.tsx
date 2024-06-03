@@ -53,7 +53,7 @@ const App = () => {
           try {
             const db = await dbPromise;
             const ISOdate = date.toISOString();
-            await db.executeSql('INSERT INTO evento (titolo, descrizione, date) VALUES (?, ?, ?)', [titleValue, descriptionValue, ISOdate]);
+            await db.executeSql('INSERT INTO evento (titolo, descrizione, data_evento) VALUES (?, ?, ?)', [titleValue, descriptionValue, ISOdate]);
             alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${ISOdate}`);
           } catch (error) {
             console.log(error);

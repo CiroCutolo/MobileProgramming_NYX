@@ -14,7 +14,7 @@ const App = () => {
     async function prepareDB() {
       const db = await dbPromise;
       await db.executeSql(
-        'CREATE TABLE IF NOT EXISTS evento (id INTEGER PRIMARY KEY AUTOINCREMENT, titolo TEXT NOT NULL, descrizione TEXT NOT NULL, data_evento DATE NOT NULL, organizzatore TEXT NOT NULL, partecipanti INTEGER NOT NULL);'
+        'CREATE TABLE IF NOT EXISTS evento (id INTEGER PRIMARY KEY AUTOINCREMENT, titolo TEXT NOT NULL, descrizione TEXT NOT NULL, data_evento DATE NOT NULL, organizzatore TEXT, capienza INTEGER);'
       );
     }
     prepareDB();
