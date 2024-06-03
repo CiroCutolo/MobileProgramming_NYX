@@ -18,7 +18,6 @@ const calendarName = 'Eventi';
 const statisticName = 'Statistiche';
 const addEventName = 'Aggiungi';
 
-
 const Tab = createBottomTabNavigator();
 
 export default function MainContainer() {
@@ -54,7 +53,6 @@ export default function MainContainer() {
                             iconName = focused ? 'add-circle' : 'add-circle-outline';
                             return <Ionicons name={iconName} size={35} color={'#D9D9D9'} />;
                         }
-
                         return <Ionicons name={iconName} size={28} color={'#D9D9D9'} />;
                     },
                     headerTitleStyle: { color: '#d9d9d9' },
@@ -78,7 +76,7 @@ export default function MainContainer() {
                     tabBarStyle: {
                         backgroundColor: '#050d25',
                     },
-                    tabBarHideOnKeyboard: true, 
+                    tabBarHideOnKeyboard: true,
                 })}
             >
                 <Tab.Screen name={homeName} component={HomeScreen} />
@@ -100,9 +98,9 @@ export default function MainContainer() {
                 <Tab.Screen name="Registrazione" component={Registrazione} options={{ tabBarButton: () => null }} />
                 <Tab.Screen name="EventController" component={EventControllerScreen} options={{ tabBarButton: () => null }}/>
             </Tab.Navigator>
-            <Popup 
-                modalVisible={modalVisible} 
-                chiudiPopup={chiudiPopup} 
+            <Popup
+                modalVisible={modalVisible}
+                chiudiPopup={chiudiPopup}
                 setIsAuthenticated={setIsAuthenticated}
             />
         </NavigationContainer>

@@ -12,6 +12,12 @@ export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated })
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  const handleLoginSuccess = () => {
+      setIsAuthenticated(true);
+      chiudiPopup();
+      navigation.navigate('Account', { utente: email }); // Passa l'email come parametro
+  };
+
   const verificaCredenziali = async () => {
     try {
       if (!email || !password) {
@@ -25,9 +31,7 @@ export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated })
       );
       if (results[0].rows.length > 0) {
         // Credenziali corrette
-        setIsAuthenticated(true);
-        chiudiPopup();
-        navigation.navigate('Account');
+        handleLoginSuccess();
       } else {
         // Credenziali errate
         setError('Email o password non corrette');

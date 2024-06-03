@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Image, StyleSheet, TextInput, Button, TouchableOpacity, Modal, Pressable, Text, Alert } from 'react-native';
+import { View, Image, StyleSheet, TextInput, Button, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Modal, Pressable, Text, Alert } from 'react-native';
 import DatePicker from 'react-native-date-picker'
 import ImagePicker from 'react-native-image-crop-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -10,7 +10,7 @@ SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({name: 'nyx.db', location: 'default'});
 
 
-const App = () => {
+const EventController = () => {
   const [titleValue, setTitleValue] = useState('');
   const [descriptionValue, setDescriptionValue] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
@@ -30,7 +30,7 @@ const App = () => {
       setTitleValue('');
       setDescriptionValue('');
       setDateFlag(false);
-      alert('Evento inserito correttamente');
+      alert('Inserimento evento annullato');
   }
 
   const handleImagePicker = () => {
@@ -62,6 +62,7 @@ const App = () => {
         };
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <View style={styles.container}>
       <View style={styles.body}>
         <TouchableOpacity onPress={handleImagePicker}>
@@ -122,6 +123,7 @@ const App = () => {
         </View>
       </View>
     </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -190,4 +192,4 @@ const styles = StyleSheet.create({
 
 });
 
-export default App
+export default EventController

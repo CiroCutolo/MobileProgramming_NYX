@@ -6,7 +6,7 @@ import DatePicker from 'react-native-date-picker';
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-const App = () => {
+const Registrazione = () => {
     const [result, setResult] = useState('');
 
     const aggiungiUtente = async (form: RegistrazioneUtente) => {
@@ -269,4 +269,4 @@ const styles2 = StyleSheet.create({
 
 });
 
-export default App;
+export default Registrazione;

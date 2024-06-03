@@ -20,33 +20,37 @@ SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
 // LEGGE GLI EVENTI
-const leggiEvento = async (): Promise<Evento[]> => {
-  try {
-    const db = await dbPromise;
-    const results = await db.executeSql(`SELECT * FROM evento
-    WHERE data_evento >= date('now', '-10 days')
-    AND data_evento <= date('now', '+10 days')`);
-    if (results.length > 0) {
-      const rows = results[0].rows;
-      const events: Evento[] = [];
-      for (let i = 0; i < rows.length; i++) {
-        events.push(rows.item(i));
-      }
-      return events;
-    }
-    return [];
-  } catch (error) {
-    console.error('Errore nella lettura degli eventi', error);
-    return [];
-  }
-};
 
-const AccountList: React.FC = () => {
+
+
+const AccountList: React.FC<{ utente:string}> = ({utente}) => {
   const [events, setEvents] = useState<Evento[]>([]);
   const [selectedEventUserInsert, setSelectedEventUserInsert] = useState<Evento | null>(null);
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState(false);
   const [result, setResult] = useState('');
   const navigation = useNavigation();
+
+    const leggiEvento = async (): Promise<Evento[]> => {
+      try {
+        const db = await dbPromise;
+        const results = await db.executeSql(
+            `SELECT *
+            FROM evento
+            WHERE organizzatore = ?`, [utente]);
+        if (results.length > 0) {
+          const rows = results[0].rows;
+          const events: Evento[] = [];
+          for (let i = 0; i < rows.length; i++) {
+            events.push(rows.item(i));
+          }
+          return events;
+        }
+        return [];
+      } catch (error) {
+        console.error('Errore nella lettura degli eventi', error);
+        return [];
+      }
+    };
 
   useEffect(() => {
     leggiEvento()
@@ -63,6 +67,28 @@ const AccountList: React.FC = () => {
     setModalVisibleUserInsert(true);
   };
 
+  const handleEventPressModEvent = async (item: Evento) => {
+    try {
+        const db = await dbPromise;
+        const results = await db.executeSql(
+            `SELECT * FROM evento
+            WHERE id=?`,[item.id]
+        );
+        if (results.length > 0) {
+          const rows = results[0].rows;
+          const events: Evento[] = [];
+          for (let i = 0; i < rows.length; i++) {
+            events.push(rows.item(i));
+          }
+          return events;
+        }
+        return [];
+      } catch (error) {
+        console.error('Errore nella lettura degli eventi', error);
+        return [];
+      }
+  }
+
   const handleAddEventPress = () => {
       navigation.navigate('EventController');
     };
@@ -70,7 +96,10 @@ const AccountList: React.FC = () => {
   const renderItem = ({ item }: { item: Evento }) => (
     <View>
       <View style={styles.eventContainer}>
-	  	<IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
+        <View style={styles.iconContainer}>
+            <IconButton iconName='create-outline' iconSize={28} iconColor={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
+            <IconButton iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
+        </View>
         <View>
           <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
         </View>
@@ -86,7 +115,6 @@ const AccountList: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <IconButton buttonStyle={styles.buttonAddEventStyle} iconName='add-circle-outline' iconSize={40} iconColor={'#D9D9D9'} onPress={handleAddEventPress} />
       <FlatList
         data={events}
         renderItem={renderItem}
@@ -192,7 +220,8 @@ const styles = StyleSheet.create({
     color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
     fontWeight: 'bold',
   },
-  eventAddpersonIcon: {
+  iconContainer: {
+    flexDirection: 'row',
     position: 'absolute',
     bottom: 80,
     right: 5,
@@ -200,6 +229,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+
   buttonAddEventStyle: {
     position: 'absolute',
     right: 25,
