@@ -10,6 +10,7 @@ import CalendarScreen from './screens/CalendarScreen';
 import StatisticScreen from './screens/StatisticScreen';
 import Popup from './screens/Popup';
 import Registrazione from './screens/Registrazione';
+import EventControllerScreen from './screens/EventControllerScreen';
 
 const homeName = 'Home';
 const accountName = 'Account';
@@ -91,6 +92,7 @@ export default function MainContainer() {
                     }}
                 />
                 <Tab.Screen name="Registrazione" component={Registrazione} options={{ tabBarButton: () => null }} />
+                <Tab.Screen name="EventController" component={EventControllerScreen} options={{ tabBarButton: () => null }}/>
             </Tab.Navigator>
             <Popup 
                 modalVisible={modalVisible} 
