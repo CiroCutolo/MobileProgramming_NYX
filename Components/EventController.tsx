@@ -7,7 +7,7 @@ import SQLite from 'react-native-sqlite-storage';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SQLite.enablePromise(true);
-const dbPromise = SQLite.openDatabase({name: 'mio_database.db', location: 'default'});
+const dbPromise = SQLite.openDatabase({name: 'nyx.db', location: 'default'});
 
 
 const App = () => {
@@ -41,28 +41,13 @@ const App = () => {
     })
       .then((image) => {
         setSelectedImage({ uri: image.path });
-        console.log(image);
+        console.log("Immagine aggiunta correttamente");
       })
       .catch((error) => {
         console.log(error);
         alert("Errore nell'inserimento dell'imagine");
       });
   };
-
-    React.useEffect(() => {
-          async function prepareDB() {
-              try {
-                    const db = await dbPromise;
-                    await db.executeSql('DROP TABLE IF EXISTS evento');
-                    await db.executeSql('CREATE TABLE IF NOT EXISTS evento (titolo TEXT NOT NULL, descrizione TEXT NOT NULL, date DATE NOT NULL)');
-                    console.log("Database preparato correttamente");
-                  } catch (error) {
-                    console.log("Errore nella preparazione del database:", error);
-                  }
-          }
-
-          prepareDB();
-      }, []);
 
       const handleAddEvent = async () => {
           try {
@@ -128,12 +113,13 @@ const App = () => {
           </TouchableOpacity>
         </View>
         <View style={styles.buttonRow}>
-          <Button style={styles.eventButton} title='Inserisci' onPress={handleAddEvent} />
-          <Button style={styles.eventButton} title='Annulla' onPress={handleUndoInsert} />
+          <TouchableOpacity onPress={handleAddEvent}>
+            <Text style={styles.eventButton}>Inserisci</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={handleUndoInsert}>
+            <Text style={styles.eventButton}>Annulla</Text>
+          </TouchableOpacity>
         </View>
-      </View>
-      <View style={styles.footer}>
-
       </View>
     </View>
   );
@@ -142,7 +128,7 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4a4a4a',
+    backgroundColor: '#050d25',
   },
   body: {
     flex: 10,
@@ -195,15 +181,11 @@ const styles = StyleSheet.create({
   },
 
   eventButton: {
-    color: '#f194ff',
+    backgroundColor: '#f194ff',
+    color: 'white',
     borderRadius: 10,
-  },
-
-  footer: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    backgroundColor: '#4a4a4a',
+    padding: 10,
+    marginTop: 10,
   },
 
 });

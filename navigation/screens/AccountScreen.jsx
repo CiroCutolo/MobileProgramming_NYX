@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { View, Text } from 'react-native';
+import AccountList from '../../Components/AccountList.tsx';
+
 
 export default function AccountScreen({navigation}){
     return(
-        <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text
-                onPress={() => navigation.navigate('Home')}
-                style={{fontSize: 26, fontWeight: 'bold'}}> Account Screen </Text>
+        <View style={{ flex: 1, justifyContent: 'center'}}>
+            <AccountList/>
         </View>
     );
 }
