@@ -31,7 +31,7 @@ const App = () => {
             data_evento DATE NOT NULL,
             organizzatore TEXT NOT NULL,
             capienza INTEGER NOT NULL,
-            locandina TEXT,
+            immagine_path TEXT,
             FOREIGN KEY(organizzatore) REFERENCES utente(email) ON DELETE CASCADE
           );`
         );
