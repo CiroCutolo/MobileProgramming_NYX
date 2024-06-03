@@ -14,8 +14,8 @@ import EventControllerScreen from './screens/EventControllerScreen';
 
 const homeName = 'Home';
 const accountName = 'Account';
-const calendarName = 'Calendar';
-const statisticName = 'Statistic';
+const calendarName = 'Eventi';
+const statisticName = 'Statistiche';
 const addEventName = 'Aggiungi';
 
 

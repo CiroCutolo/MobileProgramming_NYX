@@ -146,7 +146,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderColor: '#050d25', // Viola leggermente più scuro
     borderWidth: 5,
-    backgroundColor: 'yellow', // Viola leggermente più scuro
+    backgroundColor: '#050d25', // Viola leggermente più scuro
     margin: 10,
     padding: 10,
     shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
