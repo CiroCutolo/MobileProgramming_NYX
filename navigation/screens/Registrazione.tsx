@@ -8,15 +8,7 @@ const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
 const App = () => {
     const [result, setResult] = useState('');
-    useEffect(() => {
-            async function prepareDB() {
-              const db = await dbPromise;
-              await db.executeSql(
-                'CREATE TABLE IF NOT EXISTS utente (email TEXT PRIMARY KEY, password TEXT NOT NULL, nome TEXT NOT NULL, cognome TEXT NOT NULL, data_nascita DATE NOT NULL);'
-              );
-            }
-            prepareDB();
-    }, []);
+
     const aggiungiUtente = async (form: RegistrazioneUtente) => {
         try {
             const db = await dbPromise;

@@ -10,7 +10,7 @@ const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 interface PartecipantAdderPopupProps {
   modalVisible: boolean;
   chiudiPopup: () => void;
-  eventoId: number; 
+  eventoId: number;
 }
 
 const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisible, chiudiPopup, eventoId }) => {
@@ -21,32 +21,27 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
   const [showPopup, setShowPopup] = useState(false);
   const [affirmativeOrnegative, setAffirmativeOrNegative] = useState(false);
 
-  useEffect(() => {
-    async function prepareDB() {
-      const db = await dbPromise;
-      await db.executeSql(
-        'CREATE TABLE IF NOT EXISTS partecipazione (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, cognome TEXT NOT NULL, data_partecipazione DATE NOT NULL, evento_id INTEGER NOT NULL, FOREIGN KEY(evento_id) REFERENCES evento(id));'
-      );
-    }
-    prepareDB();
-  }, []);
-
   const aggiungiPartecipazione = async () => {
     try {
-      if (!nome || !cognome || !date || date < (new Date()) || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome)) {
+      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome)) {
         setAffirmativeOrNegative(false);
         setShowPopup(true);
         return;
       }
-  
+
       const db = await dbPromise;
-      await db.executeSql('INSERT INTO partecipazione (nome, cognome, data_partecipazione, evento_id) VALUES (?, ?, ?, ?)', [nome, cognome, date.toISOString(), eventoId]);
+      await db.executeSql(
+        'INSERT INTO partecipazione (nome, cognome, data_partecipazione, evento_id) VALUES (?, ?, ?, ?)',
+        [nome, cognome, date.toISOString().split('T')[0], eventoId]
+      );
       setAffirmativeOrNegative(true);
       setShowPopup(true);
-      
+      setNome('');
+      setCognome('');
     } catch (error) {
       setAffirmativeOrNegative(false);
       setShowPopup(true);
+      console.error("Error inserting into database: ", error);
     }
   };
 
@@ -82,11 +77,8 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                   locale="it"
                 />
                 <TouchableOpacity style={styles.button2} onPress={() => {
-                                                                  aggiungiPartecipazione();
-                                                                  chiudiPopup(); 
-                                                                  setNome('');
-                                                                  setCognome('');
-                                                                        }}>
+                  aggiungiPartecipazione();
+                }}>
                   <Text style={styles.buttonText}>Conferma</Text>
                 </TouchableOpacity>
                 {result && <Text style={styles.resultText}>{result}</Text>}
@@ -95,7 +87,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
           </View>
         </TouchableWithoutFeedback>
       </Modal>
-        <SuccessPopup visible={showPopup} chiudiPopup={() => setShowPopup(false)} success={affirmativeOrnegative} />
+      <SuccessPopup visible={showPopup} chiudiPopup={() => setShowPopup(false)} success={affirmativeOrnegative} />
     </SafeAreaView>
   );
 };
