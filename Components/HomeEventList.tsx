@@ -129,6 +129,8 @@ const HomeEventList: React.FC = () => {
 
   const renderItem = ({ item }: { item: Evento }) => {
     const partecipazioni = partecipanti.find(p => p.evento_id === item.id)?.partecipazioni || 0;
+    const eventoDate = new Date(item.data_evento);
+    const isPastEvent = eventoDate < new Date();
 
     return (
       <ZoomableView>
@@ -142,7 +144,12 @@ const HomeEventList: React.FC = () => {
             <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
             <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
             <Text style={styles.eventParticipants}>Numero atteso: {item.capienza}</Text>
+            { isPastEvent && (
+            <Text style={styles.eventParticipants}>Numero finale: {partecipazioni}</Text>
+            )}
+            { !isPastEvent && (
             <Text style={styles.eventParticipants}>Numero attuale: {partecipazioni}</Text>
+            )}
           </View>
         </View>
       </ZoomableView>
