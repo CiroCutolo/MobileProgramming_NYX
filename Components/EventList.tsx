@@ -40,6 +40,32 @@ const leggiEvento = async (): Promise<Evento[]> => {
   }
 };
 
+const leggiNumeroPartecipanti = async () => {
+  try {
+    const db = await dbPromise;
+    const results = await db.executeSql(`
+    SELECT P.evento_id as evento, COUNT(*) as partecipazioni
+    FROM evento E
+    JOIN partecipazione P ON E.id = P.evento_id
+    GROUP BY P.evento_id
+    `);
+
+    if (results.length > 0) {
+      const rows = results[0].rows;
+      const partecipazioni: { [key: number]: number } = {};
+      for (let i = 0; i < rows.length; i++) {
+        const item = rows.item(i);
+        partecipazioni[item.evento] = item.partecipazioni;
+      }
+      return partecipazioni;
+    }
+    return {};
+  } catch (error) {
+    console.error('Errore nel recuperare i dati sugli eventi:', error);
+    return {};
+  }
+};
+
 interface ZoomableViewProps {
   children: React.ReactNode;
   onPress: () => void;
@@ -114,22 +140,29 @@ const EventList: React.FC = () => {
   }
 
   useEffect(() => {
-    leggiEvento()
-      .then((data) => {
-        if (data) {
-          setEvents(data);
-          setFilteredEvents(data); 
-        }
-      })
-      .catch((err) => console.log(err));
+    const fetchData = async () => {
+      try {
+        const eventData = await leggiEvento();
+        const partecipazioniData = await leggiNumeroPartecipanti();
+
+        const eventsWithPartecipazioni = eventData.map(event => ({
+          ...event,
+          partecipanti: partecipazioniData[event.id] || 0
+        }));
+
+        setEvents(eventsWithPartecipazioni);
+        setFilteredEvents(eventsWithPartecipazioni);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    fetchData();
   }, []);
 
   useEffect(() => {
-  }, [events]);
-
-  useEffect(() => {
     handleFilter(selected);
-  }, [selected, searchText]);
+  }, [selected, searchText, events]);
 
   const handleEventPressEventDetails = (item: Evento) => {
     setSelectedEventEventDetails(item);
@@ -149,7 +182,7 @@ const EventList: React.FC = () => {
   const renderItem = ({ item }: { item: Evento }) => (
     <ZoomableView onPress={() => handleEventPressEventDetails(item)}>
       <View style={styles.eventContainer}>
-        <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)}></IconButton>
+        <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
         <View>
           <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
         </View>
@@ -157,8 +190,8 @@ const EventList: React.FC = () => {
           <Text style={styles.eventTitle}>{item.titolo}</Text>
           <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
           <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
-          <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressEventPartecipants(item)}></IconButton>
-          <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
+          <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressEventPartecipants(item)} />
+          <Text style={styles.eventParticipants}>Partecipanti: {item.partecipanti}</Text>
         </View>
       </View>
     </ZoomableView>

@@ -17,15 +17,17 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
   const [nome, setNome] = useState('');
   const [cognome, setCognome] = useState('');
   const [date, setDate] = useState(new Date());
+  const [data_nascita, setDataNascita] = useState('');
   const [result, setResult] = useState('');
   const [showPopup, setShowPopup] = useState(false);
   const [affirmativeOrnegative, setAffirmativeOrNegative] = useState(false);
+  const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
   useEffect(() => {
     async function prepareDB() {
       const db = await dbPromise;
       await db.executeSql(
-        'CREATE TABLE IF NOT EXISTS partecipazione (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, cognome TEXT NOT NULL, data_partecipazione DATE NOT NULL, evento_id INTEGER NOT NULL, FOREIGN KEY(evento_id) REFERENCES evento(id));'
+        'CREATE TABLE IF NOT EXISTS partecipazione (id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT NOT NULL, cognome TEXT NOT NULL, data_nascita DATE NOT NULL, evento_id INTEGER NOT NULL, FOREIGN KEY(evento_id) REFERENCES evento(id));'
       );
     }
     prepareDB();
@@ -41,7 +43,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
 
       const db = await dbPromise;
       await db.executeSql(
-        'INSERT INTO partecipazione (nome, cognome, data_partecipazione, evento_id) VALUES (?, ?, ?, ?)',
+        'INSERT INTO partecipazione (nome, cognome, data_nascita, evento_id) VALUES (?, ?, ?, ?)',
         [nome, cognome, date.toISOString().split('T')[0], eventoId]
       );
       setAffirmativeOrNegative(true);
@@ -55,6 +57,8 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
     }
   };
 
+
+  
   return (
     <SafeAreaView>
       <Modal
@@ -80,12 +84,27 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                   value={cognome}
                   onChangeText={setCognome}
                 />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Data di nascita"
+                  value={data_nascita}
+                  onFocus={() => setDatePickerVisibility(true)}
+                />
+                {isDatePickerVisible && (
                 <DatePicker
+                  modal
+                  open={isDatePickerVisible}
                   date={date}
                   onDateChange={setDate}
+                  onConfirm={(date) => {
+                    setDate(date);
+                  }}
+                  onCancel={() => setDatePickerVisibility(false)}
                   mode="date"
-                  locale="it"
+                  theme="dark"
+                  maximumDate={new Date()}
                 />
+                )}
                 <TouchableOpacity style={styles.button2} onPress={() => {
                   aggiungiPartecipazione();
                 }}>
