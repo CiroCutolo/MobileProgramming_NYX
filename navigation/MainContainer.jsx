@@ -16,6 +16,8 @@ const homeName = 'Home';
 const accountName = 'Account';
 const calendarName = 'Calendar';
 const statisticName = 'Statistic';
+const addEventName = 'Aggiungi';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -48,6 +50,9 @@ export default function MainContainer() {
                             iconName = focused ? 'calendar' : 'calendar-outline';
                         } else if (rn === statisticName) {
                             iconName = focused ? 'bar-chart' : 'bar-chart-outline';
+                        } else if (rn === addEventName) {
+                            iconName = focused ? 'add-circle' : 'add-circle-outline';
+                            return <Ionicons name={iconName} size={35} color={'#D9D9D9'} />;
                         }
 
                         return <Ionicons name={iconName} size={28} color={'#D9D9D9'} />;
@@ -78,6 +83,7 @@ export default function MainContainer() {
             >
                 <Tab.Screen name={homeName} component={HomeScreen} />
                 <Tab.Screen name={statisticName} component={StatisticScreen} />
+                <Tab.Screen name={addEventName} component={EventControllerScreen} />
                 <Tab.Screen name={calendarName} component={CalendarScreen} />
                 <Tab.Screen
                     name={accountName}

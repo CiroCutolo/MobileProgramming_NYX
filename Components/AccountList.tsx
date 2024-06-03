@@ -70,7 +70,6 @@ const AccountList: React.FC = () => {
   const renderItem = ({ item }: { item: Evento }) => (
     <View>
       <View style={styles.eventContainer}>
-        <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
         <View>
           <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
         </View>
@@ -87,7 +86,7 @@ const AccountList: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <IconButton buttonStyle={styles.buttonAddEventStyle} iconName='add-circle-outline' iconSize={40} iconColor={'#D9D9D9'} onPress={handleAddEventPress} />
-      <FlatList style={styles.flatList}
+      <FlatList
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
@@ -138,9 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#050d25', // Viola estremamente scuro
     alignContent: 'space-evenly',
   },
-  flatList: {
-    top: 30
-  },
+
   eventContainer: {
     flex: 1,
     flexDirection: 'row',

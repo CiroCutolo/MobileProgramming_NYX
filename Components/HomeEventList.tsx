@@ -98,8 +98,7 @@ const HomeEventList: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <IconButton buttonStyle={styles.buttonAddEventStyle} iconName='add-circle-outline' iconSize={40} iconColor={'#D9D9D9'} onPress={handleAddEventPress} />
-      <FlatList style={styles.flatList}
+      <FlatList
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
@@ -147,12 +146,9 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'column',
     backgroundColor: '#050d25',
-    padding: 20,
     alignContent: 'space-evenly',
   },
-  flatList: {
-    top: 30
-  },
+
   eventContainer: {
     flex: 1,
     flexDirection: 'row',
