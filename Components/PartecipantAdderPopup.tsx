@@ -85,7 +85,6 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                   modal
                   open={isDatePickerVisible}
                   date={date}
-                  onDateChange={setDate}
                   onConfirm={(date) => {
                     setDate(date);
                   }}
@@ -98,7 +97,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                 <TouchableOpacity style={styles.button2} onPress={() => {
                   aggiungiPartecipazione();
                 }}>
-                  <Text style={styles.buttonText}>Conferma</Text>
+                  <Text style={styles.buttonText} onPress={chiudiPopup}>Conferma</Text>
                 </TouchableOpacity>
                 {result && <Text style={styles.resultText}>{result}</Text>}
               </View>
