@@ -3,6 +3,7 @@ import IconButton from './IconButton';
 import { SafeAreaView, View, Text, StyleSheet, FlatList, Image, TouchableWithoutFeedback, Animated } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import PartecipantAdderPopup from './PartecipantAdderPopup';
+import RNFS from 'react-native-fs';
 
 // Definisco l'evento
 interface Evento {
@@ -12,6 +13,7 @@ interface Evento {
   data_evento: string;
   organizzatore: string;
   capienza: number;
+  immagine_path: string | null;
 }
 
 // CREA IL DB
@@ -31,7 +33,9 @@ const leggiEvento = async (): Promise<Evento[]> => {
       const rows = results[0].rows;
       const events: Evento[] = [];
       for (let i = 0; i < rows.length; i++) {
-        events.push(rows.item(i));
+        const item = rows.item(i);
+        console.log('Evento', item); // Verifica che l'oggetto evento contenga il campo immagine
+        events.push(item);
       }
       return events;
     }
@@ -82,24 +86,12 @@ const HomeEventList: React.FC = () => {
   const [selectedEventUserInsert, setSelectedEventUserInsert] = useState<Evento | null>(null);
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState<boolean>(false);
   const [result, setResult] = useState('');
-
-  const aggiungiEvento = async () => {
-    try {
-      const db = await dbPromise;
-      await db.executeSql('INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza ) VALUES (?, ?, ?, ?, ?)', ['FestaDrogante', 'In questa festa non ci si droga', '2024-06-01', 'Pippo Baudo', 30]);
-      setResult('Aggiunto ');
-      // Re-fetch degli eventi dopo aver aggiunto uno nuovo
-      const updatedEvents = await leggiEvento();
-      setEvents(updatedEvents);
-    } catch (error) {
-      console.error('Errore nell\'aggiungere l\'evento', error);
-      setResult('Errore nell\'aggiungere l\'evento.');
-    }
-  };
+  const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
 
   useEffect(() => {
     leggiEvento()
       .then((data) => {
+        console.log('Eventi recuperati:', data);
         if (data) {
           setEvents(data);
         }
@@ -108,7 +100,7 @@ const HomeEventList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Recupera il numero di partecipanti
+    // recupera il numero di partecipanti
     leggiPartecipanti()
       .then((data) => {
         if (data) {
@@ -117,6 +109,23 @@ const HomeEventList: React.FC = () => {
       })
       .catch((err) => console.log(err));
   }, []);
+
+  //controlla se l'immagine esiste
+  useEffect(() => {
+    events.forEach((event) => {
+      if (event.immagine_path) {
+        const filePath = `file://${event.immagine_path}`;
+        RNFS.exists(filePath)
+          .then(exists => {
+            setImageExists(prevState => ({
+              ...prevState,
+              [event.id]: exists,
+            }));
+          })
+          .catch(error => console.log('Errore verifica immagine', error));
+      }
+    });
+  }, [events]);
 
   const handleEventPressUserInsert = (item: Evento) => {
     setSelectedEventUserInsert(item);
@@ -131,152 +140,158 @@ const HomeEventList: React.FC = () => {
     const partecipazioni = partecipanti.find(p => p.evento_id === item.id)?.partecipazioni || 0;
     const eventoDate = new Date(item.data_evento);
     const isPastEvent = eventoDate < new Date();
+    const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
+
 
     return (
       <ZoomableView>
         <View style={styles.eventContainer}>
           <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
           <View>
-            <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
+            <Image
+              style={styles.eventIconImg}
+                source={imageSource}
+                onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
+              />
+            </View>
+            <View style={styles.eventInfosContainer}>
+              <Text style={styles.eventTitle}>{item.titolo}</Text>
+              <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
+              <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
+              <Text style={styles.eventParticipants}>Numero atteso: {item.capienza}</Text>
+              { isPastEvent && (
+              <Text style={styles.eventParticipants}>Numero finale: {partecipazioni}</Text>
+              )}
+              { !isPastEvent && (
+              <Text style={styles.eventParticipants}>Numero attuale: {partecipazioni}</Text>
+              )}
+            </View>
           </View>
-          <View style={styles.eventInfosContainer}>
-            <Text style={styles.eventTitle}>{item.titolo}</Text>
-            <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
-            <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
-            <Text style={styles.eventParticipants}>Numero atteso: {item.capienza}</Text>
-            { isPastEvent && (
-            <Text style={styles.eventParticipants}>Numero finale: {partecipazioni}</Text>
-            )}
-            { !isPastEvent && (
-            <Text style={styles.eventParticipants}>Numero attuale: {partecipazioni}</Text>
-            )}
-          </View>
-        </View>
-      </ZoomableView>
+        </ZoomableView>
+      );
+    };
+
+    return (
+      <SafeAreaView style={styles.container}>
+        <FlatList
+          data={events}
+          renderItem={renderItem}
+          keyExtractor={item => item.id.toString()}
+        />
+        {selectedEventUserInsert && (
+          <PartecipantAdderPopup
+            modalVisible={modalVisibleUserInsert}
+            chiudiPopup={() => setModalVisibleUserInsert(false)}
+            eventoId={selectedEventUserInsert.id}
+          />
+        )}
+      </SafeAreaView>
     );
   };
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <FlatList
-        data={events}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-      />
-      {selectedEventUserInsert && (
-        <PartecipantAdderPopup
-          modalVisible={modalVisibleUserInsert}
-          chiudiPopup={() => setModalVisibleUserInsert(false)}
-          eventoId={selectedEventUserInsert.id}
-        />
-      )}
-    </SafeAreaView>
-  );
-};
+  const ZoomableView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [scale] = useState(new Animated.Value(1));
 
-const ZoomableView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [scale] = useState(new Animated.Value(1));
+    const handlePressIn = () => {
+      Animated.spring(scale, {
+        toValue: 1.1,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+    };
 
-  const handlePressIn = () => {
-    Animated.spring(scale, {
-      toValue: 1.1,
-      friction: 3,
-      useNativeDriver: true,
-    }).start();
-  };
+    const handlePressOut = () => {
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 3,
+        useNativeDriver: true,
+      }).start();
+    };
 
-  const handlePressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      friction: 3,
-      useNativeDriver: true,
-    }).start();
-  };
+    return (
+      <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
+        <Animated.View style={{ transform: [{ scale }] }}>
+          {children}
+        </Animated.View>
+      </TouchableWithoutFeedback>
+    );
+    };
 
-  return (
-    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
-      <Animated.View style={{ transform: [{ scale }] }}>
-        {children}
-      </Animated.View>
-    </TouchableWithoutFeedback>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'column',
-    backgroundColor: '#050d25',
-    alignContent: 'space-evenly',
-  },
-  eventContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 20,
-    borderColor: '#050d25',
-    borderWidth: 5,
-    backgroundColor: '#050d25',
-    margin: 10,
-    padding: 10,
-    shadowColor: '#FFFFFF',
-    shadowOffset: { width: 8, height: 8 },
-    shadowOpacity: 0.8,
-    shadowRadius: 5,
-    elevation: 5,
-  },
-  eventIconImg: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 2,
-    marginRight: 10,
-  },
-  eventInfosContainer: {
-    flex: 1,
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-  },
-  eventTitle: {
-    flex: 1,
-    fontWeight: 'bold',
-    top: 10,
-    fontSize: 16,
-    color: '#D9D9D9',
-  },
-  eventDate: {
-    flex: 1,
-    fontWeight: 'bold',
-    top: 5,
-    fontSize: 16,
-    color: '#D9D9D9',
-  },
-  eventOrganizer: {
-    flex: 1,
-    fontSize: 16,
-    color: '#D9D9D9',
-  },
-  eventParticipants: {
-    fontSize: 16,
-    color: '#D9D9D9',
-  },
-  eventAddpersonIcon: {
-    position: 'absolute',
-    bottom: 80,
-    right: 5,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonAddEventStyle: {
-    position: 'absolute',
-    right: 25,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#050d25',
-    elevation: 4,
-    zIndex: 1
-  }
-});
+  const styles = StyleSheet.create({
+    container: {
+      flexDirection: 'column',
+      backgroundColor: '#050d25',
+      alignContent: 'space-evenly',
+    },
+    eventContainer: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: 20,
+      borderColor: '#050d25',
+      borderWidth: 5,
+      backgroundColor: '#050d25',
+      margin: 10,
+      padding: 10,
+      shadowColor: '#FFFFFF',
+      shadowOffset: { width: 8, height: 8 },
+      shadowOpacity: 0.8,
+      shadowRadius: 5,
+      elevation: 5,
+    },
+    eventIconImg: {
+      width: 100,
+      height: 100,
+      borderRadius: 50,
+      borderWidth: 2,
+      marginRight: 10,
+    },
+    eventInfosContainer: {
+      flex: 1,
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+    },
+    eventTitle: {
+      flex: 1,
+      fontWeight: 'bold',
+      top: 10,
+      fontSize: 16,
+      color: '#D9D9D9',
+    },
+    eventDate: {
+      flex: 1,
+      fontWeight: 'bold',
+      top: 5,
+      fontSize: 16,
+      color: '#D9D9D9',
+    },
+    eventOrganizer: {
+      flex: 1,
+      fontSize: 16,
+      color: '#D9D9D9',
+    },
+    eventParticipants: {
+      fontSize: 16,
+      color: '#D9D9D9',
+    },
+    eventAddpersonIcon: {
+      position: 'absolute',
+      bottom: 80,
+      right: 5,
+      padding: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    buttonAddEventStyle: {
+      position: 'absolute',
+      right: 25,
+      padding: 5,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#050d25',
+      elevation: 4,
+      zIndex: 1
+    }
+  });
 
 export default HomeEventList;
