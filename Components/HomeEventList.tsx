@@ -88,6 +88,20 @@ const HomeEventList: React.FC = () => {
   const [result, setResult] = useState('');
   const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
 
+    const aggiorna = async () => {
+        try {
+          const updateEvents = await leggiEvento();
+          setEvents(updateEvents)
+        } catch (err) {
+          console.log(err);
+        }
+  };
+
+  useEffect(() => {
+    aggiorna();
+  }, []);
+
+
   useEffect(() => {
     leggiEvento()
       .then((data) => {
@@ -177,6 +191,7 @@ const HomeEventList: React.FC = () => {
           data={events}
           renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
+          onScroll={() => aggiorna()}
         />
         {selectedEventUserInsert && (
           <PartecipantAdderPopup
