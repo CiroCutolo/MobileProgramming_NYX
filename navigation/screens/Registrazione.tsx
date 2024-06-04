@@ -142,6 +142,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         password: '',
         confermaPassword: '',
     });
+    navigation.goBack( { utente: form.email });
   };
 
   return (
