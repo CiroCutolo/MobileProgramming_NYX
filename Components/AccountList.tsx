@@ -5,6 +5,7 @@ import SQLite from 'react-native-sqlite-storage';
 import PartecipantAdderPopup from './PartecipantAdderPopup';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import RNFS from 'react-native-fs';
 
 
 // Definisco l'evento
@@ -26,6 +27,8 @@ const AccountList = () => {
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState(false);
   const [result, setResult] = useState('');
   const navigation = useNavigation();
+  const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
+
 
   useEffect(() => {
     leggiEvento()
@@ -65,6 +68,35 @@ const AccountList = () => {
     }
   };
 
+  const update = async () => {
+      try {
+        const updateEvents = await leggiEvento();
+        setEvents(updateEvents)
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    useEffect(() => {
+      update();
+    }, []);
+
+  //controlla se l'immagine esiste
+  useEffect(() => {
+    events.forEach((event) => {
+      if (event.immagine_path) {
+        const filePath = `file://${event.immagine_path}`;
+        RNFS.exists(filePath)
+          .then(exists => {
+            setImageExists(prevState => ({
+              ...prevState,
+              [event.id]: exists,
+            }));
+          })
+          .catch(error => console.log('Errore verifica immagine', error));
+      }
+    });
+  }, [events]);
 
   const handleEventPressUserInsert = (item: Evento) => {
     setSelectedEventUserInsert(item);
@@ -76,23 +108,29 @@ const AccountList = () => {
   };
 
 
-  const renderItem = ({ item }: { item: Evento }) => (
+  const renderItem = ({ item }: { item: Evento }) => {
+    const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
+    return(
     <View style={styles.eventContainer}>
       <View style={styles.iconContainer}>
         <IconButton iconName='create-outline' iconSize={28} iconColor={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
         <IconButton iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
       </View>
       <View>
-        <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
+        <Image
+          style={styles.eventIconImg}
+            source={imageSource}
+            onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
+          />
       </View>
-      <View style={styles.eventInfosContainer}>
-        <Text style={styles.eventTitle}>{item.titolo}</Text>
-        <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
-        <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
-        <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
+        <View style={styles.eventInfosContainer}>
+          <Text style={styles.eventTitle}>{item.titolo}</Text>
+          <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
+          <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
+        </View>
       </View>
-    </View>
-  );
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -100,6 +138,7 @@ const AccountList = () => {
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
+        onScroll={() => update()}
       />
       {selectedEventUserInsert && (
         <PartecipantAdderPopup

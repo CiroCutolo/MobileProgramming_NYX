@@ -120,8 +120,8 @@ const EventController = ({ evento }) => {
           const db = await dbPromise;
           const dateString = date.toISOString().split('T')[0];
           await db.executeSql(
-            'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
-            [titleValue, descriptionValue, dateString, organizzatore, capacityValue]
+            'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza, immagine_path) VALUES (?, ?, ?, ?, ?, ?)',
+            [titleValue, descriptionValue, dateString, organizzatore, capacityValue, imagePath]
           );
           alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${dateString} \nOrganizzatore: ${organizzatore} \nCapienza: ${capacityValue}`);
           handleEmptyFields();
