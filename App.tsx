@@ -57,7 +57,7 @@ const App = () => {
       const db = await dbPromise;
       await db.executeSql(
         'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
-        ['Festa di mamma', 'siete scemi', '2024-06-01', 'Ciro', 100]
+        ['Festa di Aury', 'siete gay', '2024-06-06', 'cirocutolo2002@gmail.com', 2]
       );
       setResult('Evento aggiunto con successo');
     } catch (error) {

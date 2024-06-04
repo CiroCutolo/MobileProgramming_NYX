@@ -16,6 +16,7 @@ interface Evento {
   data_evento: string;
   organizzatore: string;
   partecipanti: number;
+  organizzatori: string;
 }
 
 SQLite.enablePromise(true);
@@ -62,6 +63,31 @@ const leggiNumeroPartecipanti = async () => {
     return {};
   } catch (error) {
     console.error('Errore nel recuperare i dati sugli eventi:', error);
+    return {};
+  }
+};
+
+const leggiOrganizzatore = async () => {
+  try {
+    const db = await dbPromise;
+    const results = await db.executeSql(`
+      SELECT E.id as evento_id, U.nome || ' ' || U.cognome as organizzatore
+      FROM evento E
+      JOIN utente U ON E.organizzatore = U.email
+    `);
+
+    if (results.length > 0) {
+      const rows = results[0].rows;
+      const organizzatori: { [key: number]: string } = {};
+      for (let i = 0; i < rows.length; i++) {
+        const item = rows.item(i);
+        organizzatori[item.evento_id] = item.organizzatore;
+      }
+      return organizzatori;
+    }
+    return {};
+  } catch (error) {
+    console.error('Errore nel recuperare i dati sugli organizzatori:', error);
     return {};
   }
 };
@@ -143,15 +169,17 @@ const EventList: React.FC = () => {
     const fetchData = async () => {
       try {
         const eventData = await leggiEvento();
-        const partecipazioniData = await leggiNumeroPartecipanti();
+        const partecipazioniEventi = await leggiNumeroPartecipanti();
+        const organizzatoriEventi = await leggiOrganizzatore();
 
-        const eventsWithPartecipazioni = eventData.map(event => ({
+        const eventsDetails = eventData.map(event => ({
           ...event,
-          partecipanti: partecipazioniData[event.id] || 0
+          partecipanti: partecipazioniEventi[event.id] || 0,
+          organizzatori: organizzatoriEventi[event.id] || 'Non disponibile'
         }));
 
-        setEvents(eventsWithPartecipazioni);
-        setFilteredEvents(eventsWithPartecipazioni);
+        setEvents(eventsDetails);
+        setFilteredEvents(eventsDetails);
       } catch (err) {
         console.log(err);
       }
@@ -189,9 +217,9 @@ const EventList: React.FC = () => {
         <View style={styles.eventInfosContainer}>
           <Text style={styles.eventTitle}>{item.titolo}</Text>
           <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
-          <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
+          <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatori}</Text>
           <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressEventPartecipants(item)} />
-          <Text style={styles.eventParticipants}>Partecipanti: {item.partecipanti}</Text>
+          <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
         </View>
       </View>
     </ZoomableView>
@@ -346,7 +374,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     color: '#D9D9D9', 
     fontWeight: 'bold',
-    right: 2
+    right: 3,
+    top: 1
   },
   eventAddpersonIcon: {
     position: 'absolute',
