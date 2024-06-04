@@ -208,7 +208,7 @@ const EventList: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: Evento }) => (
-    <ZoomableView onPress={() => {handleEventPressEventDetails(item); fetchData();}}>
+    <ZoomableView onPress={() => handleEventPressEventDetails(item)}>
       <View style={styles.eventContainer}>
         <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
         <View>
@@ -283,6 +283,7 @@ const EventList: React.FC = () => {
         data={filteredEvents}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
+        onScroll={() => fetchData()} 
       />
       {selectedEventEventDetails && (
         <DetailsPopup
