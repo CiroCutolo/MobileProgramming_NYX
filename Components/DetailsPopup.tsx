@@ -32,9 +32,9 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={styles.popup}>
                 <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
-                <Image 
-                  style={styles.eventImagePopup} 
-                  source={require('./imgs/Nyx_icon.jpg')} 
+                <Image
+                  style={styles.eventImagePopup}
+                  source={require('./imgs/Nyx_icon.jpg')}
                 />
                 <View style={styles.eventInfosContainerPopup}>
                     <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   eventPartecipantsIcon: {
     position: 'absolute',
     alignSelf: 'flex-end',
-    top: 60
+    top: 220,
   }
 });
 
