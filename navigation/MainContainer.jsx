@@ -96,7 +96,6 @@ export default function MainContainer() {
                     }}
                 />
                 <Tab.Screen name="Registrazione" component={Registrazione} options={{ tabBarButton: () => null }} />
-                <Tab.Screen name="EventController" component={EventControllerScreen} options={{ tabBarButton: () => null }}/>
             </Tab.Navigator>
             <Popup
                 modalVisible={modalVisible}
