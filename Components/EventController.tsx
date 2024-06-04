@@ -121,11 +121,12 @@ const EventController = ({ evento }) => {
         const organizzatore = await AsyncStorage.getItem('@email');
         if (organizzatore !== null) {
           const db = await dbPromise;
+          const dateString = date.toLocaleDateString();
           await db.executeSql(
             'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
-            [titleValue, descriptionValue, date, organizzatore, capacityValue]
+            [titleValue, descriptionValue, dateString, organizzatore, capacityValue]
           );
-          alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${date} \nOrganizzatore: ${organizzatore} \nCapienza: ${capacityValue}`);
+          alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${dateString} \nOrganizzatore: ${organizzatore} \nCapienza: ${capacityValue}`);
         } else {
           console.log("Errore nell'acquisizione dati da AsyncStorage");
           alert("Errore: Organizzatore non trovato");
