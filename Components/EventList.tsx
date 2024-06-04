@@ -202,6 +202,7 @@ const EventList: React.FC = () => {
     events.forEach((event) => {
       if (event.immagine_path) {
         const filePath = `file://${event.immagine_path}`;
+        console.log(filePath);
         RNFS.exists(filePath)
           .then(exists => {
             setImageExists(prevState => ({
