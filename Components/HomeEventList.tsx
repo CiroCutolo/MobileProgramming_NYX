@@ -91,7 +91,6 @@ const HomeEventList: React.FC = () => {
   useEffect(() => {
     leggiEvento()
       .then((data) => {
-        console.log('Eventi recuperati:', data);
         if (data) {
           setEvents(data);
         }
@@ -177,6 +176,7 @@ const HomeEventList: React.FC = () => {
           data={events}
           renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
+          onScroll={() => leggiEvento()}
         />
         {selectedEventUserInsert && (
           <PartecipantAdderPopup

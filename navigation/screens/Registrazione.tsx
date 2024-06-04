@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Alert, Button, SafeAreaView, StyleSheet, TextInput, View, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import DatePicker from 'react-native-date-picker';
+import { useNavigation } from '@react-navigation/native';
 
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
@@ -84,6 +85,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
 
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [date, setDate] = useState(new Date());
+  const navigation = useNavigation();
 
   //aggiorna la struttura in base all'input inserito nei campi
   const handleInputChange = (key: keyof RegistrazioneUtente, value: string) => {
@@ -142,7 +144,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         password: '',
         confermaPassword: '',
     });
-    navigation.goBack( { utente: form.email });
+    navigation.goBack();
   };
 
   return (
