@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableWithoutFeedback, Animated, StyleProp, ViewStyle, TextInput, Modal } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
-import DetailsPopup from './DetailsPopup';  
+import DetailsPopup from './DetailsPopup';
 import PartecipantAdderPopup from './PartecipantAdderPopup';
 import IconButton from './IconButton';
 import { SelectList } from 'react-native-dropdown-select-list';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import EventPartecipantsPopup from './EventPartecipantsPopup';
+import RNFS from 'react-native-fs';
+
 
 interface Evento {
   id: number;
@@ -17,6 +19,7 @@ interface Evento {
   organizzatore: string;
   partecipanti: number;
   organizzatori: string;
+  immagine_path: string;
 }
 
 SQLite.enablePromise(true);
@@ -137,6 +140,8 @@ const EventList: React.FC = () => {
   const [modalVisiblePartecipantsList, setModalVisiblePartecipantsList] = useState<boolean>(false);
   const [selected, setSelected] = useState("");
   const [searchText, setSearchText] = useState("");
+  const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
+
 
   const data = [
     { key: '1', value: 'Evento Passato' },
@@ -192,6 +197,24 @@ const EventList: React.FC = () => {
     handleFilter(selected);
   }, [selected, searchText, events]);
 
+  //controlla se l'immagine esiste
+  useEffect(() => {
+    events.forEach((event) => {
+      if (event.immagine_path) {
+        const filePath = `file://${event.immagine_path}`;
+        console.log(filePath);
+        RNFS.exists(filePath)
+          .then(exists => {
+            setImageExists(prevState => ({
+              ...prevState,
+              [event.id]: exists,
+            }));
+          })
+          .catch(error => console.log('Errore verifica immagine', error));
+      }
+    });
+  }, [events]);
+
   const handleEventPressEventDetails = (item: Evento) => {
     setSelectedEventEventDetails(item);
     setModalVisibleEventDetails(true);
@@ -207,13 +230,19 @@ const EventList: React.FC = () => {
     setModalVisiblePartecipantsList(true);
   };
 
-  const renderItem = ({ item }: { item: Evento }) => (
+  const renderItem = ({ item }: { item: Evento }) => {
+    const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
+    return (
     <ZoomableView onPress={() => handleEventPressEventDetails(item)}>
       <View style={styles.eventContainer}>
         <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
-        <View>
-          <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
-        </View>
+          <View>
+            <Image
+              style={styles.eventIconImg}
+                source={imageSource}
+                onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
+              />
+            </View>
         <View style={styles.eventInfosContainer}>
           <Text style={styles.eventTitle}>{item.titolo}</Text>
           <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
@@ -223,7 +252,8 @@ const EventList: React.FC = () => {
         </View>
       </View>
     </ZoomableView>
-  );
+    );
+  }
 
   const chiudiPopup = () => {
     setModalVisibleEventDetails(false);
@@ -246,20 +276,20 @@ const EventList: React.FC = () => {
       <View style={styles.searchBarContainer}>
         <SelectList
           setSelected={(val: React.SetStateAction<string>) => setSelected(val)}
-          boxStyles={{ backgroundColor: '#050d25', 
-            height: 45, 
+          boxStyles={{ backgroundColor: '#050d25',
+            height: 45,
             width: 175,
             borderRadius: 20,
             borderColor: '#D9D9D9',
           }}
           placeholder='Seleziona un filtro'
           inputStyles={{color: '#D9D9D9'}}
-          arrowicon={<FontAwesome name="chevron-down" size={15} color={'#D9D9D9'} />} 
-          searchicon={<FontAwesome name="search" size={15} color={'#D9D9D9'} />} 
+          arrowicon={<FontAwesome name="chevron-down" size={15} color={'#D9D9D9'} />}
+          searchicon={<FontAwesome name="search" size={15} color={'#D9D9D9'} />}
           closeicon={<FontAwesome name="close" size={15} color={'#D9D9D9'} />}
           searchPlaceholder=''
           dropdownStyles={{position: 'absolute',
-            top: 40, 
+            top: 40,
             width: 175,
             backgroundColor: '#050d25',
             borderColor: '#D9D9D9',
@@ -283,7 +313,7 @@ const EventList: React.FC = () => {
         data={filteredEvents}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
-        onScroll={() => fetchData()} 
+        onScroll={() => fetchData()}
       />
       {selectedEventEventDetails && (
         <DetailsPopup
@@ -314,7 +344,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#050d25', 
+    backgroundColor: '#050d25',
     //padding: 20,
     alignContent: 'space-evenly',
   },
@@ -329,15 +359,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 20,
-    borderColor: '#050d25', 
+    borderColor: '#050d25',
     borderWidth: 5,
-    backgroundColor: '#050d25', 
+    backgroundColor: '#050d25',
     margin: 10,
     padding: 10,
-    shadowColor: '#FFFFFF', 
-    shadowOffset: { width: 8, height: 8 }, 
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 8, height: 8 },
     shadowOpacity: 0.8,
-    shadowRadius: 5, 
+    shadowRadius: 5,
     elevation: 5,
   },
   eventIconImg: {
@@ -357,24 +387,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     top: 10,
     fontSize: 16,
-    color: '#D9D9D9', 
+    color: '#D9D9D9',
   },
   eventDate: {
     flex: 1,
     fontWeight: 'bold',
     top: 5,
     fontSize: 16,
-    color: '#D9D9D9', 
+    color: '#D9D9D9',
   },
   eventOrganizer: {
     flex: 1,
     fontSize: 16,
-    color: '#D9D9D9', 
+    color: '#D9D9D9',
   },
   eventParticipants: {
     fontSize: 16,
     alignSelf: 'flex-end',
-    color: '#D9D9D9', 
+    color: '#D9D9D9',
     fontWeight: 'bold',
     right: 3,
     top: 1
@@ -391,13 +421,13 @@ const styles = StyleSheet.create({
     height: 45,
     width: 175,
     marginLeft: 10,
-    borderColor: '#D9D9D9', 
+    borderColor: '#D9D9D9',
     borderWidth: 1,
     borderRadius: 20,
     marginBottom: 10,
     paddingLeft: 8,
     color: '#D9D9D9',
-    backgroundColor: '#050d25', 
+    backgroundColor: '#050d25',
   },
   eventPartecipantsIcon: {
     position: 'absolute',

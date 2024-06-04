@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Modal, Text, View, SafeAreaView, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import IconButton from './IconButton';
 
@@ -10,6 +10,7 @@ interface Evento {
   organizzatore: string;
   partecipanti: number;
   organizzatori: string;
+  immagine_path: string;
 }
 
 interface DetailsPopupProps {
@@ -19,8 +20,10 @@ interface DetailsPopupProps {
 }
 
 const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, item }) => {
+  const imageSource = item.immagine_path ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
+
   return (
-    <SafeAreaView >
+    <SafeAreaView>
       <Modal
         animationType="fade"
         transparent={true}
@@ -34,13 +37,14 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
                 <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
                 <Image
                   style={styles.eventImagePopup}
-                  source={require('./imgs/Nyx_icon.jpg')}
+                  source={imageSource}
+                  onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
                 />
                 <View style={styles.eventInfosContainerPopup}>
                     <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
                     <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
                     <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatori}</Text>
-                    <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} onPress={() => undefined} />
+                    <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} />
                     <Text style={styles.eventParticipantsPopup}>{item.partecipanti}</Text>
                 </View>
               </View>
@@ -64,11 +68,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     width: 350,
     alignContent: 'center',
-    maxHeight: 500,
+    height: 500,
   },
   eventImagePopup: {
     width: 300,
-    maxHeight: 150,
+    height: 150,
     borderRadius: 10,
     alignSelf: 'center',
   },

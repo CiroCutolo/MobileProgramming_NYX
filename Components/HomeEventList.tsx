@@ -33,9 +33,7 @@ const leggiEvento = async (): Promise<Evento[]> => {
       const rows = results[0].rows;
       const events: Evento[] = [];
       for (let i = 0; i < rows.length; i++) {
-        const item = rows.item(i);
-        console.log('Evento', item); // Verifica che l'oggetto evento contenga il campo immagine
-        events.push(item);
+        events.push(rows.item(i));
       }
       return events;
     }
@@ -88,17 +86,17 @@ const HomeEventList: React.FC = () => {
   const [result, setResult] = useState('');
   const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
 
-    const aggiorna = async () => {
-        try {
-          const updateEvents = await leggiEvento();
-          setEvents(updateEvents)
-        } catch (err) {
-          console.log(err);
-        }
+  const update = async () => {
+    try {
+      const updateEvents = await leggiEvento();
+      setEvents(updateEvents)
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   useEffect(() => {
-    aggiorna();
+    update();
   }, []);
 
 
@@ -190,7 +188,7 @@ const HomeEventList: React.FC = () => {
           data={events}
           renderItem={renderItem}
           keyExtractor={item => item.id.toString()}
-          onScroll={() => leggiEvento()}
+          onScroll={() => update()}
         />
         {selectedEventUserInsert && (
           <PartecipantAdderPopup

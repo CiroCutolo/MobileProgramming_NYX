@@ -15,7 +15,7 @@ export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated })
 
   const handleLoginSuccess = async () => {
       try {
-        _storeData(form.email);
+        _storeData(email);
         setIsAuthenticated(true);
         chiudiPopup();
         navigation.navigate('Account');
