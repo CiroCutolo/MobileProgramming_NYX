@@ -110,6 +110,7 @@ const EventController = ({ modFlag, evento }) => {
               } catch (error) {
                 console.log(error);
               }
+       });
   };
 
   const handleAddEvent = async () => {
@@ -133,7 +134,7 @@ const EventController = ({ modFlag, evento }) => {
           <TouchableOpacity onPress={handleImagePicker}>
             <View style={styles.profileImageContainer}>
               {selectedImageURI ? (
-                <Image source={selectedImageURI} style={styles.profileImage}} />
+                <Image source={selectedImageURI} style={styles.profileImage} />
               ) : (
                 <Icon name='add-a-photo' style={styles.icon_add} />
               )}
@@ -190,7 +191,7 @@ const EventController = ({ modFlag, evento }) => {
               <Text style={styles.eventButton}>{modFlag ? 'Modifica' : 'Inserisci'}</Text>
             </TouchableOpacity>
             {modFlag ? (<TouchableOpacity onPress={handleDeleteEvent}>
-              <Icon name='delete' style={styles.eventButton}></Icon>
+              <Icon name='delete' style={[styles.eventButton, styles.deleteButton]}></Icon>
               <Text>Cancella</Text>
             </TouchableOpacity>) : null}
             <TouchableOpacity onPress={handleUndoInsert}>
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#cccccc',
     backgroundColor: '#edf6d6',
-    color: 'black'
+    color: 'black',
     borderRadius: 10,
     marginVertical: 10,
     padding: 5,
@@ -267,6 +268,11 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
+
+  deleteButton: {
+    fontSize: 25,
+    alignItems: 'center',
+  }
 
 });
 
