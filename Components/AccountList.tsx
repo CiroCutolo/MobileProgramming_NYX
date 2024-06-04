@@ -67,9 +67,6 @@ const AccountList: React.FC<{ utente:string}> = ({utente}) => {
     navigation.navigate('Aggiungi', {evento: item, modFlag:true});
   };
 
-  const handleAddEventPress = () => {
-      navigation.navigate('EventController');
-    };
 
   const renderItem = ({ item }: { item: Evento }) => (
       <View style={styles.eventContainer}>
