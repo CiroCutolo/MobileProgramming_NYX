@@ -142,6 +142,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         password: '',
         confermaPassword: '',
     });
+    navigation.goBack( { utente: form.email });
   };
 
   return (
@@ -166,7 +167,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
           style={styles2.input}
           placeholder="Data di nascita"
           value={form.data_nascita}
-          onFocus={() => setDatePickerVisibility(true)}
+          onPress={() => setDatePickerVisibility(true)}
         />
 
         {isDatePickerVisible && (

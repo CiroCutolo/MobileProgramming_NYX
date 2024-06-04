@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Text, Alert } from 'react-native';
+import { View, ScrollView, Image, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Text, Alert } from 'react-native';
 import DatePicker from 'react-native-date-picker'
 import ImagePicker from 'react-native-image-crop-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -13,7 +13,7 @@ SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
 
-const EventController = ({ modFlag, evento }) => {
+const EventController = ({ evento }) => {
   const [titleValue, setTitleValue] = useState('');
   const [descriptionValue, setDescriptionValue] = useState('');
   const [selectedImageURI, setSelectedImageURI] = useState(null);
@@ -22,6 +22,7 @@ const EventController = ({ modFlag, evento }) => {
   const [date, setDate] = useState(new Date());
   const [capacityValue, setCapacityValue] = useState(null);
   const [dateFlag, setDateFlag] = useState(false);
+  const [descriptionHeight, setDescriptionHeight] = useState(10);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const EventController = ({ modFlag, evento }) => {
         alert("Errore nell'inserimento dell'evento");
       }
     };
-    if (modFlag) {
+    if (evento!=null) {
       selectEvent();
     }
   }, []);
@@ -69,6 +70,7 @@ const EventController = ({ modFlag, evento }) => {
     setDescriptionValue('');
     setDateFlag(false);
     alert('Inserimento evento annullato');
+    navigation.navigate('Account');
   }
 
   const handleDeleteEvent = async () => {
@@ -80,10 +82,12 @@ const EventController = ({ modFlag, evento }) => {
                 WHERE id = ?`, [evento.id]
       );
       alert(`Evento cancellato correttamente`);
+      navigation.navigate('Account');
     } catch (error) {
       console.log(error);
       alert("Errore nella cancellazione dell'evento");
     }
+
   }
 
   const handleImagePicker = () => {
@@ -129,7 +133,7 @@ const EventController = ({ modFlag, evento }) => {
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <View style={styles.body}>
           <TouchableOpacity onPress={handleImagePicker}>
             <View style={styles.profileImageContainer}>
@@ -148,20 +152,22 @@ const EventController = ({ modFlag, evento }) => {
               placeholder="Aggiungi un titolo"
             />
             <TextInput
-              style={[styles.input, styles.largeInput]}
+              style={[styles.input]}
               multiline
               value={descriptionValue}
               onChangeText={handleDescriptionChange}
-              placeholder="Aggiungi una descrizione" />
+              placeholder="Aggiungi una descrizione"
+              onContentSizeChange={(e) => setDescriptionHeight(e.nativeEvent.contentSize.height)}
+              />
             <DatePicker
               modal
-              mode="datetime"
+              mode="date"
               open={modalVisible}
               date={date}
               minimumDate={new Date(Date.now())}
               locale='it'
               theme="dark"
-              title="Seleziona data e ora dell'evento"
+              title="Seleziona data dell'evento"
               buttonColor='purple'
               minuteInterval={5}
               onConfirm={(date) => {
@@ -175,7 +181,7 @@ const EventController = ({ modFlag, evento }) => {
             />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.input}>
-                {dateFlag ? date.toLocaleString().substring(0, date.toLocaleString().indexOf(':') + 3) : "Aggiungi data"}
+                {dateFlag ? date.toLocaleDateString() : "Aggiungi data"}
               </Text>
             </TouchableOpacity>
             <TextInput
@@ -188,18 +194,17 @@ const EventController = ({ modFlag, evento }) => {
           </View>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={handleAddEvent}>
-              <Text style={styles.eventButton}>{modFlag ? 'Modifica' : 'Inserisci'}</Text>
+              <Text style={styles.eventButton}>{ evento ? 'Modifica' : 'Inserisci'}</Text>
             </TouchableOpacity>
-            {modFlag ? (<TouchableOpacity onPress={handleDeleteEvent}>
+            {evento ? (<TouchableOpacity onPress={handleDeleteEvent}>
               <Icon name='delete' style={[styles.eventButton, styles.deleteButton]}></Icon>
-              <Text>Cancella</Text>
             </TouchableOpacity>) : null}
             <TouchableOpacity onPress={handleUndoInsert}>
               <Text style={styles.eventButton}>Annulla</Text>
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
