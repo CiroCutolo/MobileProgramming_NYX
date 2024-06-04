@@ -4,6 +4,8 @@ import { SafeAreaView, View, Text, StyleSheet, FlatList, Image, TouchableWithout
 import SQLite from 'react-native-sqlite-storage';
 import PartecipantAdderPopup from './PartecipantAdderPopup';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 // Definisco l'evento
 interface Evento {
@@ -18,28 +20,30 @@ interface Evento {
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-const AccountList: React.FC<{ utente:string}> = ({utente}) => {
+const AccountList = () => {
   const [events, setEvents] = useState<Evento[]>([]);
   const [selectedEventUserInsert, setSelectedEventUserInsert] = useState<Evento | null>(null);
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState(false);
   const [result, setResult] = useState('');
   const navigation = useNavigation();
 
-    useEffect(() => {
-        leggiEvento()
-          .then((data) => {
-            if (data) {
-              setEvents(data);
-            }
-          })
-          .catch((err) => console.log(err));
-      }, []);
+  useEffect(() => {
+    leggiEvento()
+      .then((data) => {
+        if (data) {
+          setEvents(data);
+        }
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
-    const leggiEvento = async (): Promise<Evento[]> => {
-      try {
+  const leggiEvento = async (): Promise<Evento[]> => {
+    try {
+      const utente = await AsyncStorage.getItem('@email');
+      if (utente !== null) {
         const db = await dbPromise;
         const results = await db.executeSql(
-            `SELECT *
+          `SELECT *
             FROM evento
             WHERE organizzatore = ?`, [utente]);
         if (results.length > 0) {
@@ -51,11 +55,15 @@ const AccountList: React.FC<{ utente:string}> = ({utente}) => {
           return events;
         }
         return [];
-      } catch (error) {
-        console.error('Errore nella lettura degli eventi', error);
-        return [];
+      } else {
+        console.log("Errore nell'acquisizione dati da AsyncStorage");
+        alert("Errore: Organizzatore non trovato");
       }
-    };
+    } catch (error) {
+      console.error('Errore nella lettura degli eventi', error);
+      return [];
+    }
+  };
 
 
   const handleEventPressUserInsert = (item: Evento) => {
@@ -64,26 +72,26 @@ const AccountList: React.FC<{ utente:string}> = ({utente}) => {
   };
 
   const handleEventPressModEvent = (item: Evento) => {
-    navigation.navigate('Aggiungi', {evento: item, modFlag:true});
+    navigation.navigate('Aggiungi', { evento: item});
   };
 
 
   const renderItem = ({ item }: { item: Evento }) => (
-      <View style={styles.eventContainer}>
-        <View style={styles.iconContainer}>
-            <IconButton iconName='create-outline' iconSize={28} iconColor={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
-            <IconButton iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
-        </View>
-        <View>
-          <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
-        </View>
-        <View style={styles.eventInfosContainer}>
-          <Text style={styles.eventTitle}>{item.titolo}</Text>
-          <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
-          <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
-          <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
-        </View>
+    <View style={styles.eventContainer}>
+      <View style={styles.iconContainer}>
+        <IconButton iconName='create-outline' iconSize={28} iconColor={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
+        <IconButton iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
       </View>
+      <View>
+        <Image style={styles.eventIconImg} source={require('./imgs/Nyx_icon.jpg')} />
+      </View>
+      <View style={styles.eventInfosContainer}>
+        <Text style={styles.eventTitle}>{item.titolo}</Text>
+        <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
+        <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
+        <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
+      </View>
+    </View>
   );
 
   return (
