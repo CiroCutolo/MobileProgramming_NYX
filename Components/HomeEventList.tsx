@@ -232,6 +232,7 @@ const HomeEventList: React.FC = () => {
   const styles = StyleSheet.create({
     container: {
       flexDirection: 'column',
+      height: '100%',
       backgroundColor: '#050d25',
       alignContent: 'space-evenly',
     },
