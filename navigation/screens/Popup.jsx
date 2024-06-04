@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, StyleSheet, Modal, Text, View, SafeAreaView, TextInput, TouchableOpacity, Keyboard, TouchableWithoutFeedback} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import SQLite from 'react-native-sqlite-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
@@ -12,11 +13,24 @@ export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated })
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleLoginSuccess = () => {
-      setIsAuthenticated(true);
-      chiudiPopup();
-      navigation.navigate('Account', { utente: email }); // Passa l'email come parametro
-  };
+  const handleLoginSuccess = async () => {
+      try {
+        _storeData(form.email);
+        setIsAuthenticated(true);
+        chiudiPopup();
+        navigation.navigate('Account');
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+  const _storeData = async (email) => {
+      try {
+        await AsyncStorage.setItem('@email', email);
+      } catch (error) {
+        console.log("Errore nell'inserimento in AsyncStorage");
+      }
+    };
 
   const verificaCredenziali = async () => {
     try {

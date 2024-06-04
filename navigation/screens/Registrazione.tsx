@@ -4,6 +4,7 @@ import SQLite from 'react-native-sqlite-storage';
 import DatePicker from 'react-native-date-picker';
 import { useNavigation } from '@react-navigation/native';
 
+
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
@@ -86,7 +87,6 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [date, setDate] = useState(new Date());
   const navigation = useNavigation();
-
   //aggiorna la struttura in base all'input inserito nei campi
   const handleInputChange = (key: keyof RegistrazioneUtente, value: string) => {
     setForm(prevState => ({
@@ -144,7 +144,17 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         password: '',
         confermaPassword: '',
     });
+
+    _storeData(form.email);
     navigation.goBack();
+  };
+
+  const _storeData = async (email) => {
+    try {
+      await AsyncStorage.setItem('@email', email);
+    } catch (error) {
+      console.log("Errore nell'inserimento in AsyncStorage");
+    }
   };
 
   return (

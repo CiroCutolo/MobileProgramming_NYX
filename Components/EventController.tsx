@@ -42,19 +42,19 @@ const EventController = ({ evento }) => {
           setDate(new Date(evento.data_evento));
           alert(`Evento Selezionato:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${date}`);
         }
-
       } catch (error) {
         console.log(error);
         alert("Errore nell'inserimento dell'evento");
       }
     };
-    if (evento!=null) {
+    if (evento !== null) {
       selectEvent();
     }
-  }, []);
+  }, [evento]);
 
   const handleTitleChange = (text) => {
     setTitleValue(text);
+
   }
 
   const handleDescriptionChange = (text) => {
@@ -87,7 +87,6 @@ const EventController = ({ evento }) => {
       console.log(error);
       alert("Errore nella cancellazione dell'evento");
     }
-
   }
 
   const handleImagePicker = () => {
@@ -117,19 +116,26 @@ const EventController = ({ evento }) => {
        });
   };
 
-  const handleAddEvent = async () => {
-    try {
-      const db = await dbPromise;
-      const ISOdate = date.toISOString();
-      await db.executeSql(`
-        INSERT INTO evento (titolo, descrizione, data_evento, capienza, immagine_path) VALUES (?, ?, ?, ?,?)`,
-        [titleValue, descriptionValue, ISOdate, capacityValue, imagePath]);
-      alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${ISOdate}`);
-    } catch (error) {
-      console.log(error);
-      alert("Errore nell'inserimento dell'evento");
-    }
-  };
+   const handleAddEvent = async () => {
+      try {
+        const organizzatore = await AsyncStorage.getItem('@email');
+        if (organizzatore !== null) {
+          const db = await dbPromise;
+          const ISOdate = date.toISOString();
+          await db.executeSql(
+            'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
+            [titleValue, descriptionValue, ISOdate, organizzatore, capacityValue]
+          );
+          alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${ISOdate} \nOrganizzatore: ${organizzatore} \nCapienza: ${capacityValue}`);
+        } else {
+          console.log("Errore nell'acquisizione dati da AsyncStorage");
+          alert("Errore: Organizzatore non trovato");
+        }
+      } catch (error) {
+        console.log(error);
+        alert("Errore: Verifica di aver inserito tutti i campi");
+      }
+    };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
