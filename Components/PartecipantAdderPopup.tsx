@@ -78,7 +78,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                   style={styles.input}
                   placeholder="Data di nascita"
                   value={data_nascita}
-                  onFocus={() => setDatePickerVisibility(true)}
+                  onPress={() => setDatePickerVisibility(true)}
                 />
                 {isDatePickerVisible && (
                 <DatePicker

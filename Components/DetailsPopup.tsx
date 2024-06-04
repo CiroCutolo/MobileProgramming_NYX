@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Modal, Text, View, SafeAreaView, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
+import IconButton from './IconButton';
 
 interface Evento {
   id: number;
@@ -8,6 +9,7 @@ interface Evento {
   data_evento: string;
   organizzatore: string;
   partecipanti: number;
+  organizzatori: string;
 }
 
 interface DetailsPopupProps {
@@ -30,14 +32,15 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={styles.popup}>
                 <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
-                <Image 
-                  style={styles.eventImagePopup} 
-                  source={require('./imgs/Nyx_icon.jpg')} 
+                <Image
+                  style={styles.eventImagePopup}
+                  source={require('./imgs/Nyx_icon.jpg')}
                 />
                 <View style={styles.eventInfosContainerPopup}>
                     <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
                     <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
-                    <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatore}</Text>
+                    <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatori}</Text>
+                    <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} onPress={() => undefined} />
                     <Text style={styles.eventParticipantsPopup}>{item.partecipanti}</Text>
                 </View>
               </View>
@@ -101,6 +104,11 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     top: 145
   },
+  eventPartecipantsIcon: {
+    position: 'absolute',
+    alignSelf: 'flex-end',
+    top: 220,
+  }
 });
 
 export default DetailsPopup;
