@@ -54,7 +54,6 @@ const EventController = ({ evento }) => {
 
   const handleTitleChange = (text) => {
     setTitleValue(text);
-
   }
 
   const handleDescriptionChange = (text) => {
@@ -66,9 +65,7 @@ const EventController = ({ evento }) => {
   }
 
   const handleUndoInsert = () => {
-    setTitleValue('');
-    setDescriptionValue('');
-    setDateFlag(false);
+    handleEmptyFields();
     alert('Inserimento evento annullato');
     navigation.navigate('Account');
   }
@@ -121,12 +118,14 @@ const EventController = ({ evento }) => {
         const organizzatore = await AsyncStorage.getItem('@email');
         if (organizzatore !== null) {
           const db = await dbPromise;
-          const dateString = date.toLocaleDateString();
+          const dateString = date.toISOString().split('T')[0];
           await db.executeSql(
             'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
             [titleValue, descriptionValue, dateString, organizzatore, capacityValue]
           );
           alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${dateString} \nOrganizzatore: ${organizzatore} \nCapienza: ${capacityValue}`);
+          handleEmptyFields();
+          navigation.navigate('Account');
         } else {
           console.log("Errore nell'acquisizione dati da AsyncStorage");
           alert("Errore: Organizzatore non trovato");
@@ -136,6 +135,13 @@ const EventController = ({ evento }) => {
         alert("Errore: Verifica di aver inserito tutti i campi");
       }
     };
+
+    const handleEmptyFields = async () => {
+        setTitleValue('');
+        setDescriptionValue('');
+        setCapacityValue('');
+        setDateFlag(false);
+    }
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -187,7 +193,7 @@ const EventController = ({ evento }) => {
             />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.input}>
-                {dateFlag ? date.toLocaleDateString() : "Aggiungi data"}
+                {dateFlag ? date.toLocaleDateString('it-IT') : "Aggiungi data"}
               </Text>
             </TouchableOpacity>
             <TextInput
