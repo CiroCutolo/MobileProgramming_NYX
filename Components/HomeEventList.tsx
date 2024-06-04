@@ -103,7 +103,6 @@ const HomeEventList: React.FC = () => {
   useEffect(() => {
     leggiEvento()
       .then((data) => {
-        console.log('Eventi recuperati:', data);
         if (data) {
           setEvents(data);
         }
