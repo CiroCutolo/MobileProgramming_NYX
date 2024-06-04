@@ -165,26 +165,26 @@ const EventList: React.FC = () => {
     setFilteredEvents(filtered);
   }
 
+  const fetchData = async () => {
+    try {
+      const eventData = await leggiEvento();
+      const partecipazioniEventi = await leggiNumeroPartecipanti();
+      const organizzatoriEventi = await leggiOrganizzatore();
+
+      const eventsDetails = eventData.map(event => ({
+        ...event,
+        partecipanti: partecipazioniEventi[event.id] || 0,
+        organizzatori: organizzatoriEventi[event.id] || 'Non disponibile'
+      }));
+
+      setEvents(eventsDetails);
+      setFilteredEvents(eventsDetails);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const eventData = await leggiEvento();
-        const partecipazioniEventi = await leggiNumeroPartecipanti();
-        const organizzatoriEventi = await leggiOrganizzatore();
-
-        const eventsDetails = eventData.map(event => ({
-          ...event,
-          partecipanti: partecipazioniEventi[event.id] || 0,
-          organizzatori: organizzatoriEventi[event.id] || 'Non disponibile'
-        }));
-
-        setEvents(eventsDetails);
-        setFilteredEvents(eventsDetails);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchData();
   }, []);
 
@@ -208,7 +208,7 @@ const EventList: React.FC = () => {
   };
 
   const renderItem = ({ item }: { item: Evento }) => (
-    <ZoomableView onPress={() => handleEventPressEventDetails(item)}>
+    <ZoomableView onPress={() => {handleEventPressEventDetails(item); fetchData();}}>
       <View style={styles.eventContainer}>
         <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
         <View>
@@ -218,7 +218,7 @@ const EventList: React.FC = () => {
           <Text style={styles.eventTitle}>{item.titolo}</Text>
           <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
           <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatori}</Text>
-          <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressEventPartecipants(item)} />
+          <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => {handleEventPressEventPartecipants(item); fetchData();}} />
           <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
         </View>
       </View>
@@ -233,6 +233,7 @@ const EventList: React.FC = () => {
   const chiudiPopupUserInsert = () => {
     setModalVisibleUserInsert(false);
     setSelectedEventUserInsert(null);
+    fetchData();
   };
 
   const chiudiPopupEventPartecipants = () => {
@@ -293,7 +294,7 @@ const EventList: React.FC = () => {
       {selectedEventUserInsert && (
         <PartecipantAdderPopup
           modalVisible={modalVisibleUserInsert}
-          chiudiPopup={() => setModalVisibleUserInsert(false)}
+          chiudiPopup={chiudiPopupUserInsert}
           eventoId={selectedEventUserInsert.id}
         />
       )}

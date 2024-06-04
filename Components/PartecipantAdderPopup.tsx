@@ -99,7 +99,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                 }}>
                   <Text style={styles.buttonText}>Conferma</Text>
                 </TouchableOpacity>
-                {result && <Text style={styles.resultText} onPress={chiudiPopup}>{result}</Text>}
+                {result && <Text style={styles.resultText} onPress={() => {chiudiPopup;}}>{result}</Text>}
               </View>
             </TouchableWithoutFeedback>
           </View>
