@@ -15,13 +15,8 @@ interface Evento {
   partecipanti: number;
 }
 
-// CREA IL DB
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
-
-// LEGGE GLI EVENTI
-
-
 
 const AccountList: React.FC<{ utente:string}> = ({utente}) => {
   const [events, setEvents] = useState<Evento[]>([]);
@@ -29,6 +24,16 @@ const AccountList: React.FC<{ utente:string}> = ({utente}) => {
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState(false);
   const [result, setResult] = useState('');
   const navigation = useNavigation();
+
+    useEffect(() => {
+        leggiEvento()
+          .then((data) => {
+            if (data) {
+              setEvents(data);
+            }
+          })
+          .catch((err) => console.log(err));
+      }, []);
 
     const leggiEvento = async (): Promise<Evento[]> => {
       try {
@@ -52,49 +57,21 @@ const AccountList: React.FC<{ utente:string}> = ({utente}) => {
       }
     };
 
-  useEffect(() => {
-    leggiEvento()
-      .then((data) => {
-        if (data) {
-          setEvents(data);
-        }
-      })
-      .catch((err) => console.log(err));
-  }, []);
 
   const handleEventPressUserInsert = (item: Evento) => {
     setSelectedEventUserInsert(item);
     setModalVisibleUserInsert(true);
   };
 
-  const handleEventPressModEvent = async (item: Evento) => {
-    try {
-        const db = await dbPromise;
-        const results = await db.executeSql(
-            `SELECT * FROM evento
-            WHERE id=?`,[item.id]
-        );
-        if (results.length > 0) {
-          const rows = results[0].rows;
-          const events: Evento[] = [];
-          for (let i = 0; i < rows.length; i++) {
-            events.push(rows.item(i));
-          }
-          return events;
-        }
-        return [];
-      } catch (error) {
-        console.error('Errore nella lettura degli eventi', error);
-        return [];
-      }
-  }
+  const handleEventPressModEvent = (item: Evento) => {
+    navigation.navigate('Aggiungi', {evento: item, modFlag:true});
+  };
 
   const handleAddEventPress = () => {
       navigation.navigate('EventController');
     };
 
   const renderItem = ({ item }: { item: Evento }) => (
-    <View>
       <View style={styles.eventContainer}>
         <View style={styles.iconContainer}>
             <IconButton iconName='create-outline' iconSize={28} iconColor={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
@@ -110,7 +87,6 @@ const AccountList: React.FC<{ utente:string}> = ({utente}) => {
           <Text style={styles.eventParticipants}>{item.partecipanti}</Text>
         </View>
       </View>
-    </View>
   );
 
   return (
