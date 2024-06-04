@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image, TouchableOpacity } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 import HomeScreen from './screens/HomeScreen';
 import AccountScreen from './screens/AccountScreen';
@@ -22,8 +24,7 @@ const Tab = createBottomTabNavigator();
 
 export default function MainContainer() {
     const [modalVisible, setModalVisible] = useState(false);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+    const email = AsyncStorage.getItem('@email');
     const apriPopup = () => {
         setModalVisible(true);
     };
@@ -88,7 +89,7 @@ export default function MainContainer() {
                     component={AccountScreen}
                     listeners={{
                         tabPress: (e) => {
-                            if (!isAuthenticated) {
+                            if (email == null) {
                                 e.preventDefault();
                                 apriPopup();
                             }
@@ -101,7 +102,6 @@ export default function MainContainer() {
             <Popup
                 modalVisible={modalVisible}
                 chiudiPopup={chiudiPopup}
-                setIsAuthenticated={setIsAuthenticated}
             />
         </NavigationContainer>
     );

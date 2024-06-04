@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated }) {
+export default function Popup({ modalVisible, chiudiPopup}) {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,7 +16,6 @@ export default function Popup({ modalVisible, chiudiPopup, setIsAuthenticated })
   const handleLoginSuccess = async () => {
       try {
         _storeData(email);
-        setIsAuthenticated(true);
         chiudiPopup();
         navigation.navigate('Account');
       } catch (error) {
