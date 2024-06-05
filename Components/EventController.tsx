@@ -75,6 +75,7 @@ const EventController = ({ evento }) => {
         WHERE id = ?`, [evento.id]
       );
       alert('Evento cancellato correttamente');
+      handleEmptyFields();
       //navigazione alla schemata Account
       navigation.navigate('Account');
     } catch (error) {
