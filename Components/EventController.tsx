@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Image, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Text, Alert } from 'react-native';
+import { View, ScrollView, Image, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Text } from 'react-native';
 import DatePicker from 'react-native-date-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -63,10 +63,10 @@ const EventController = ({ evento }) => {
                 FROM evento
                 WHERE id = ?`, [evento.id]
       );
-      alert(`Evento cancellato correttamente`);
+      alert('Evento cancellato correttamente');
       navigation.navigate('Account');
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert('Errore nella cancellazione dell\'evento');
     }
   };
@@ -87,7 +87,7 @@ const EventController = ({ evento }) => {
         setSelectedImageURI({ uri: `file://${destPath}` });
         setImagePath(destPath);
       } catch (error) {
-        console.log(error);
+        console.error(error);
       }
     });
   };
@@ -114,11 +114,11 @@ const EventController = ({ evento }) => {
         handleEmptyFields();
         navigation.navigate('Account');
       } else {
-        console.log('Errore nell\'acquisizione dati da AsyncStorage');
+        console.error('Errore nell\'acquisizione dati da AsyncStorage');
         alert('Errore: Organizzatore non trovato');
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       alert('Errore: Verifica di aver inserito tutti i campi');
     }
   };
@@ -168,7 +168,6 @@ const EventController = ({ evento }) => {
               theme="dark"
               title="Seleziona data dell'evento"
               buttonColor='purple'
-              minuteInterval={5}
               onConfirm={(date) => {
                 setModalVisible(false);
                 setDateFlag(true);
@@ -193,7 +192,7 @@ const EventController = ({ evento }) => {
           </View>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={handleAddEvent}>
-              <Text style={styles.eventButton}>{ evento ? 'Modifica' : 'Inserisci'}</Text>
+              <Text style={styles.eventButton}>{evento ? 'Modifica' : 'Inserisci'}</Text>
             </TouchableOpacity>
             {evento ? (
               <TouchableOpacity onPress={handleDeleteEvent}>
@@ -236,16 +235,13 @@ const styles = StyleSheet.create({
     height: 150,
     resizeMode: 'cover',
   },
-
   icon_add: {
     fontSize: 80,
     color: 'black',
   },
-
   inputContainer: {
     width: '80%',
   },
-
   input: {
     backgroundColor: 'white',
     borderWidth: 1,
@@ -256,18 +252,11 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     padding: 5,
   },
-
-  largeInput: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-
   buttonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '80%',
   },
-
   eventButton: {
     backgroundColor: '#917ea3',
     color: 'white',
@@ -275,12 +264,10 @@ const styles = StyleSheet.create({
     padding: 10,
     marginTop: 10,
   },
-
   deleteButton: {
     fontSize: 25,
     alignItems: 'center',
   }
-
 });
 
 export default EventController;
