@@ -152,12 +152,18 @@ const HomeEventList: React.FC = () => {
     const eventoDate = new Date(item.data_evento);
     const isPastEvent = eventoDate < new Date();
     const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
-
+    const getCurrentDate = () => {
+      const date = new Date();
+      return date.toISOString().split('T')[0];
+    }
 
     return (
       <ZoomableView>
         <View style={styles.eventContainer}>
+          { item.data_evento >= getCurrentDate() &&(
           <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
+          )
+          }
           <View>
             <Image
               style={styles.eventIconImg}
