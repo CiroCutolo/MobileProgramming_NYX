@@ -15,6 +15,7 @@ const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 export const leggiDatiEvento = async (): Promise<Statistiche[]> => {
   try {
     const db = await dbPromise;
+    // esegue una query SQL per ottenere il numero di partecipanti per ogni evento
     const results = await db.executeSql(`
       SELECT E.titolo as titolo_evento, COUNT(*) as partecipazioni
       FROM evento E
@@ -25,6 +26,7 @@ export const leggiDatiEvento = async (): Promise<Statistiche[]> => {
     if (results.length > 0) {
       const rows = results[0].rows;
       const datiStatistiche: Statistiche[] = [];
+      // itera sui risultati della query e li converte in un array di oggetti Statistiche
       for (let i = 0; i < rows.length; i++) {
         const item = rows.item(i);
         datiStatistiche.push({
@@ -50,6 +52,7 @@ interface Organizzatori {
 export const leggiDatiOrganizzatore = async (): Promise<Organizzatori[]> => {
   try {
     const db = await dbPromise;
+    // esegue una query SQL per ottenere il numero di eventi per ogni organizzatore
     const results = await db.executeSql(`
       SELECT E.organizzatore, U.nome || ' ' || U.cognome as organizzatore, COUNT(*) as num_eventi
       FROM evento E JOIN utente U ON E.organizzatore = U.email
@@ -60,6 +63,7 @@ export const leggiDatiOrganizzatore = async (): Promise<Organizzatori[]> => {
     if (results.length > 0) {
       const rows = results[0].rows;
       const organizzatori: Organizzatori[] = [];
+      // itera sui risultati della query e li converte in un array di oggetti Organizzatori
       for (let i = 0; i < rows.length; i++) {
         const item = rows.item(i);
         organizzatori.push({
@@ -76,10 +80,12 @@ export const leggiDatiOrganizzatore = async (): Promise<Organizzatori[]> => {
   }
 };
 
+// creazione del componente Statistiche
 const Statistiche: React.FC = () => {
   const [statistiche, setStatistiche] = useState<Statistiche[]>([]);
   const [organizzatori, setOrganizzatori] = useState<Organizzatori[]>([]);
 
+  // aggiorna il contenuto della pagina (sull'onScroll)
   const update = async () => {
     try {
       const updateStatistics = await leggiDatiEvento();
@@ -91,12 +97,13 @@ const Statistiche: React.FC = () => {
     }
   };
 
+  // richiama la funzione di aggiornamento all'avvio del componente
   useEffect(() => {
     update();
   }, []);
 
   useEffect(() => {
-    // recupera i dati per il grafico sui partecipanti
+    // recupera tutti i dati per il grafico sui partecipanti
     const fetchData = async () => {
       try {
         const dati = await leggiDatiEvento();
@@ -105,11 +112,12 @@ const Statistiche: React.FC = () => {
         console.error('Errore nel recuperare i dati:', error);
       }
     };
+    // richiama la funzione di recupero dei dati
     fetchData();
   }, []);
 
   useEffect(() => {
-    // recupera i dati per il grafico sugli organizzatori
+    // recupera tutti i dati per il grafico sugli organizzatori
     const fetchData2 = async () => {
       try {
         const dati2 = await leggiDatiOrganizzatore();
@@ -118,12 +126,15 @@ const Statistiche: React.FC = () => {
         console.error('Errore nel recuperare i dati:', error);
       }
     };
+    // richiama la funzione di recupero dei dati
     fetchData2();
   }, []);
 
+  // filtra solo i risultati che hanno un valore, su cui saranno basati i grafici
   const validData = statistiche.filter(stat => stat.titolo_evento && stat.partecipanti !== undefined);
   const validData2 = organizzatori.filter(stat => stat.organizzatore && stat.num_eventi !== undefined);
 
+  // definisce le proprietà sui dati del primo grafico
   const data = {
     labels: validData.map(stat => stat.titolo_evento),
     datasets: [
@@ -136,6 +147,7 @@ const Statistiche: React.FC = () => {
     ],
   };
 
+  // definisce la configurazione degli elementi del primo grafico
   const chartConfig = {
     backgroundGradientFrom: '#edf6d6',
     backgroundGradientTo: '#edf6d6',
@@ -156,19 +168,22 @@ const Statistiche: React.FC = () => {
     }
   };
 
+  // genera tutti colori casuali sulla scala del viola per il grafico a torta, per rimanere sul tema dei colori dell'app
   const generaColoriSulViola = () => {
-    const red = Math.floor(Math.random() * 100) + 155; // Assicura che il rosso sia compreso tra 155 e 255
-    const green = Math.floor(Math.random() * 50); // Assicura che il verde sia compreso tra 0 e 50
-    const blue = Math.floor(Math.random() * 150) + 105; // Assicura che il blu sia compreso tra 105 e 255
+    const red = Math.floor(Math.random() * 100) + 155; // assicura che il rosso sia compreso tra 155 e 255
+    const green = Math.floor(Math.random() * 50); // assicura che il verde sia compreso tra 0 e 50
+    const blue = Math.floor(Math.random() * 150) + 105; // assicura che il blu sia compreso tra 105 e 255
     return `rgb(${red},${green},${blue})`;
   };
 
+  // definisce le proprietà sui dati del primo grafico
   const data2 = organizzatori.map((organizzatore) => ({
     name: organizzatore.organizzatore,
     num_eventi: organizzatore.num_eventi,
     color: generaColoriSulViola(),
   }));
 
+  // definisce la configurazione degli elementi del primo grafico
   const chartConfig2 = {
     backgroundGradientFrom: '#edf6d6',
     backgroundGradientTo: '#edf6d6',
@@ -176,6 +191,7 @@ const Statistiche: React.FC = () => {
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
   };
 
+  //cotruisce la schermata con tutti i componenti, tra cui i due grafici sulle statistiche, applicando poi i vari stili
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -232,7 +248,7 @@ const styles = StyleSheet.create({
   },
   grafico1: {
     borderRadius: 20,
-    overflow: 'hidden', // Nasconde eventuali contenuti oltre i bordi arrotondati
+    overflow: 'hidden',
     alignItems: 'center',
     marginVertical: 5,
   },
@@ -253,7 +269,7 @@ const styles = StyleSheet.create({
   },
   grafico2: {
     borderRadius: 20,
-    overflow: 'hidden', // Nasconde eventuali contenuti oltre i bordi arrotondati
+    overflow: 'hidden',
     alignItems: 'center',
     marginTop: -125,
   },

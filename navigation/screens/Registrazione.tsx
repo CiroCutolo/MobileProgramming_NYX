@@ -8,54 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-const Registrazione = () => {
-    const [result, setResult] = useState('');
 
-    const aggiungiUtente = async (form) => {
-        try {
-            const db = await dbPromise;
-
-            // Verifica se l'email esiste già nel database
-            const [result] = await db.executeSql(
-                'SELECT COUNT(*) as count FROM utente WHERE email = ?',
-                [form.email]
-            );
-
-            // Estrae il conteggio dalla risposta
-            const count = result.rows.item(0).count;
-
-            // Se l'email esiste già, mostra un popup di errore
-            if (count > 0) {
-                Alert.alert('Errore', 'L\'email inserita è già esistente.');
-                return;
-            }
-
-            // Altrimenti, continua con l'inserimento dell'utente, con una transazione per rendere persistenti le modifiche nel db
-            await db.transaction(async (tx) => {
-                await tx.executeSql(
-                    'INSERT INTO utente (email, password, nome, cognome, data_nascita) VALUES (?, ?, ?, ?, ?)',
-                    [form.email, form.password, form.nome, form.cognome, form.data_nascita]
-                );
-            });
-
-            setResult('Aggiunto ' + form.nome);
-        } catch (error) {
-            console.error('Errore nell\'aggiungere l\'utente', error);
-            setResult('Errore nell\'aggiungere l\'utente.');
-        }
-    };
-
-    return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <SafeAreaView style={styles.container}>
-                <Text>{result}</Text>
-                <FormRegistrazione aggiungiUtente={aggiungiUtente} />
-            </SafeAreaView>
-        </TouchableWithoutFeedback>
-    );
-};
-
-// Crea la struttura per la registrazione
+// crea la struttura per la registrazione
 interface RegistrazioneUtente {
     nome: string;
     cognome: string;
@@ -65,12 +19,58 @@ interface RegistrazioneUtente {
     confermaPassword: string;
 }
 
-// Inizializza la struttura
+// definisce la struttura delle props che possono essere passate al componente FormRegistrazione
 interface FormRegistrazioneProps {
     aggiungiUtente: (utente: RegistrazioneUtente) => void;
 }
 
+const Registrazione = () => {
+
+    // intergisce con il db per eseguire l'inserimento dell'utente, sulla base dei parametri indicati dall'utente nel form
+    const aggiungiUtente = async (form) => {
+        try {
+            const db = await dbPromise;
+
+            // verifica se l'email indicata esiste già nel database
+            const [result] = await db.executeSql(
+                'SELECT COUNT(*) as count FROM utente WHERE email = ?',
+                [form.email]
+            );
+
+            // estrae il conteggio dalla risposta
+            const count = result.rows.item(0).count;
+
+            // se l'email esiste già, mostra un alert di errore e non consente l'inserimento
+            if (count > 0) {
+                Alert.alert('Errore', 'L\'email inserita è già esistente.');
+                return;
+            }
+
+            // altrimenti, continua con l'inserimento dell'utente, tramite una transazione per rendere persistenti le modifiche nel db
+            await db.transaction(async (tx) => {
+                await tx.executeSql(
+                    'INSERT INTO utente (email, password, nome, cognome, data_nascita) VALUES (?, ?, ?, ?, ?)',
+                    [form.email, form.password, form.nome, form.cognome, form.data_nascita]
+                );
+            });
+
+        } catch (error) {
+            console.error('Errore nell\'aggiungere l\'utente', error);
+        }
+    };
+
+    return (
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <SafeAreaView style={styles.container}>
+                <FormRegistrazione aggiungiUtente={aggiungiUtente} />
+            </SafeAreaView>
+        </TouchableWithoutFeedback>
+    );
+};
+
+// definisce il componente FormRegistrazione sulla base delle props definite precedentemente
 const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente }) => {
+
     const [form, setForm] = useState<RegistrazioneUtente>({
         nome: '',
         cognome: '',
@@ -80,11 +80,12 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         confermaPassword: '',
     });
 
+    // definisce degli state utili per il datePicker e la data
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
     const [date, setDate] = useState(new Date());
     const navigation = useNavigation();
 
-    // Aggiorna la struttura in base all'input inserito nei campi
+    // aggiorna lo stato del form in base agli input inseriti nei campi del form
     const handleInputChange = (key: keyof RegistrazioneUtente, value: string) => {
         setForm(prevState => ({
             ...prevState,
@@ -92,6 +93,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         }));
     };
 
+    // per la data viene effettuato un toString per poterla inserire nel db, con lo split che taglia la parte dell'orario
     const handleDate = (date: Date) => {
         setForm(prevState => ({
             ...prevState,
@@ -100,10 +102,12 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         setDatePickerVisibility(false);
     };
 
+    // controlla se il formato dell'email è valido
     const isEmailValid = (email: string): boolean => {
         return email.includes('@') && email.includes('.');
     };
 
+    // effettua tutti i controlli sui campi inseriti, quando viene cliccato il bottone 'Registrati', mostrando degli alert in caso di errori
     const submit = () => {
         if (
             !form.nome ||
@@ -142,10 +146,12 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
             confermaPassword: '',
         });
 
+         // chiama la funzione per salvare l'email inserita
         _storeData(form.email);
-        navigation.navigate('Eventi');
+        navigation.navigate('Account');
     };
 
+    // salva l'email dell'utente registrato nel local storage, per permettere di simulare il meccanismo della 'sessione'
     const _storeData = async (email) => {
         try {
             await AsyncStorage.setItem('@email', email);
@@ -154,6 +160,7 @@ const FormRegistrazione: React.FC<FormRegistrazioneProps> = ({ aggiungiUtente })
         }
     };
 
+    //cotruisce la schermata con tutti i componenti del form, ai quali applica i successivi stili
     return (
         <SafeAreaView style={styles2.container}>
             <Text style={styles2.text}>
