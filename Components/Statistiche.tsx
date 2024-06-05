@@ -1,7 +1,7 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, Dimensions, ScrollView, SafeAreaView, StyleSheet} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, Dimensions, ScrollView, SafeAreaView, StyleSheet } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
-import {LineChart, PieChart} from 'react-native-chart-kit';
+import { LineChart, PieChart } from 'react-native-chart-kit';
 
 interface Statistiche {
   titolo_evento: string;
@@ -11,7 +11,7 @@ interface Statistiche {
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-//conta le partecipazioni per ogni evento
+// conta le partecipazioni per ogni evento
 export const leggiDatiEvento = async (): Promise<Statistiche[]> => {
   try {
     const db = await dbPromise;
@@ -41,15 +41,14 @@ export const leggiDatiEvento = async (): Promise<Statistiche[]> => {
   }
 };
 
-
 interface Organizzatori {
   organizzatore: string;
   num_eventi: number;
 }
 
-//conta gli eventi per ogni organizzatore
+// conta gli eventi per ogni organizzatore
 export const leggiDatiOrganizzatore = async (): Promise<Organizzatori[]> => {
-try {
+  try {
     const db = await dbPromise;
     const results = await db.executeSql(`
       SELECT E.organizzatore, U.nome || ' ' || U.cognome as organizzatore, COUNT(*) as num_eventi
@@ -75,15 +74,29 @@ try {
     console.error('Errore nel recuperare i dati sugli organizzatori:', error);
     return [];
   }
-}
+};
 
-
-  const Statistiche: React.FC = () => {
+const Statistiche: React.FC = () => {
   const [statistiche, setStatistiche] = useState<Statistiche[]>([]);
   const [organizzatori, setOrganizzatori] = useState<Organizzatori[]>([]);
 
+  const update = async () => {
+    try {
+      const updateStatistics = await leggiDatiEvento();
+      const updateOrganizzatori = await leggiDatiOrganizzatore();
+      setStatistiche(updateStatistics);
+      setOrganizzatori(updateOrganizzatori);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    //recupera i dati per il grafico sui partecipanti
+    update();
+  }, []);
+
+  useEffect(() => {
+    // recupera i dati per il grafico sui partecipanti
     const fetchData = async () => {
       try {
         const dati = await leggiDatiEvento();
@@ -96,7 +109,7 @@ try {
   }, []);
 
   useEffect(() => {
-    //recupera i dati per il grafico sugli organizzatori
+    // recupera i dati per il grafico sugli organizzatori
     const fetchData2 = async () => {
       try {
         const dati2 = await leggiDatiOrganizzatore();
@@ -109,10 +122,7 @@ try {
   }, []);
 
   const validData = statistiche.filter(stat => stat.titolo_evento && stat.partecipanti !== undefined);
-
   const validData2 = organizzatori.filter(stat => stat.organizzatore && stat.num_eventi !== undefined);
-
-  const eventiTotali = validData2.reduce((acc, curr) => acc + curr.num_eventi, 0);
 
   const data = {
     labels: validData.map(stat => stat.titolo_evento),
@@ -120,7 +130,7 @@ try {
       {
         label: "Numero di Partecipanti",
         data: validData.map(stat => stat.partecipanti),
-        strokeWidth: '2',
+        strokeWidth: 2,
         color: (opacity = 1) => `rgba(145, 126, 163, ${opacity})`,
       },
     ],
@@ -130,7 +140,7 @@ try {
     backgroundGradientFrom: '#edf6d6',
     backgroundGradientTo: '#edf6d6',
     color: (opacity = 1) => `rgba(160, 110, 183, ${opacity})`,
-    decimalPlaces: '0',
+    decimalPlaces: 0,
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     propsForDots: {
       r: '3',
@@ -142,7 +152,7 @@ try {
       strokeDasharray: '',
     },
     propsForLabels: {
-      fontSize: '12',
+      fontSize: 12,
     }
   };
 
@@ -159,122 +169,114 @@ try {
     color: generaColoriSulViola(),
   }));
 
-
   const chartConfig2 = {
-      backgroundGradientFrom: '#edf6d6',
-      backgroundGradientTo: '#edf6d6',
-      color: (opacity = 1) => `rgba(150, 130, 183, ${opacity})`,
-      labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-    };
-
+    backgroundGradientFrom: '#edf6d6',
+    backgroundGradientTo: '#edf6d6',
+    color: (opacity = 1) => `rgba(150, 130, 183, ${opacity})`,
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+  };
 
   return (
     <SafeAreaView style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style = {styles.grafico1}>
-            <Text style={styles.title}>GLI EVENTI PIÙ AMATI</Text>
-            <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                <View style = {styles.linechart}>
-                    {validData.length > 0 ? (
-                      <LineChart
-                        data={data}
-                        width={validData.length * 110}
-                        height={400}
-                        chartConfig={chartConfig}
-                        bezier
-                        yAsis = {[{label: 'PARTECIPANTI'}]}
-                      />
-                    ) : (
-                   <Text>Nessun dato disponibile</Text>
-                   )}
-                   <Text style={styles.etichetta1}>EVENTI</Text>
-                  <Text style={styles.etichetta2}>PARTECIPAZIONI</Text>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.grafico1}>
+          <Text style={styles.title}>GLI EVENTI PIÙ AMATI</Text>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            <View style={styles.linechart}>
+              {validData.length > 0 ? (
+                <LineChart
+                  data={data}
+                  width={Math.max(Dimensions.get('window').width, validData.length * 120)}
+                  height={400}
+                  chartConfig={chartConfig}
+                  bezier
+                />
+              ) : (
+                <Text>Nessun dato disponibile</Text>
+              )}
+              <Text style={styles.etichetta1}>EVENTI</Text>
+              <Text style={styles.etichetta2}>PARTECIPAZIONI</Text>
+            </View>
+          </ScrollView>
+        </View>
 
-                </View>
-            </ScrollView>
-          </View>
-
-          <View style={styles.grafico2}>
-            <Text style={styles.title}>GLI ORGANIZZATORI PIÙ POPOLARI</Text>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
-                    <View style={styles.piechart}>
-                      {validData2.length > 0 ? (
-                        <PieChart
-                          data={data2}
-                          width={(Dimensions.get('window').width)}
-                          height={validData2.length * 100}
-                          chartConfig={chartConfig2}
-                          accessor="num_eventi"
-                          backgroundColor="transparent"
-                          paddingLeft= "-50"
-                        />
-                        ) : (
-                        <Text>Nessun dato disponibile</Text>
-                      )}
-                    </View>
-                </ScrollView>
-            </ScrollView>
-          </View>
-        </ScrollView>
+        <View style={styles.grafico2}>
+          <Text style={styles.title}>GLI ORGANIZZATORI PIÙ POPOLARI</Text>
+          <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}>
+            <View style={styles.piechart}>
+              {validData2.length > 0 ? (
+                <PieChart
+                  data={data2}
+                  width={Dimensions.get('window').width}
+                  height={validData2.length * 30}
+                  chartConfig={chartConfig2}
+                  accessor="num_eventi"
+                  backgroundColor="transparent"
+                />
+              ) : (
+                <Text>Nessun dato disponibile</Text>
+              )}
+            </View>
+          </ScrollView>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#050d25',
-        padding: 20,
-    },
-    grafico1: {
-        borderRadius: 20,
-        overflow: 'hidden', // Nasconde eventuali contenuti oltre i bordi arrotondati
-        alignItems: 'center',
-        marginVertical: 5,
-    },
-    title: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 20,
-        marginTop: 10,
-        color: '#edf6d6'
-    },
-    linechart: {
-        marginTop: 12,
-        backgroundColor: '#edf6d6',
-        borderRadius: 20,
-        overflow: 'hidden',
-        paddingTop: 50,
-        marginBottom: 155
-    },
-    grafico2: {
-        borderRadius: 20,
-        overflow: 'hidden', // Nasconde eventuali contenuti oltre i bordi arrotondati
-        alignItems: 'center',
-        marginTop: -125,
-    },
-    piechart: {
-        marginTop: 20,
-        backgroundColor: '#edf6d6',
-        borderRadius: 20,
-        overflow: 'hidden',
-        padding: 10,
-    },
-    etichetta1: {
-        position : 'absolute',
-        fontWeight: 'bold',
-        top: 410,
-        left: 170
-    },
-    etichetta2:{
-        position: 'absolute',
-        transform: [{ rotate: '-90deg'}],
-        fontWeight: 'bold',
-        left: -30,
-        top: 210,
-    }
-
+  container: {
+    flex: 1,
+    backgroundColor: '#050d25',
+    padding: 20,
+  },
+  grafico1: {
+    borderRadius: 20,
+    overflow: 'hidden', // Nasconde eventuali contenuti oltre i bordi arrotondati
+    alignItems: 'center',
+    marginVertical: 5,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    marginTop: 10,
+    color: '#edf6d6'
+  },
+  linechart: {
+    marginTop: 12,
+    backgroundColor: '#edf6d6',
+    borderRadius: 20,
+    overflow: 'hidden',
+    paddingTop: 50,
+    marginBottom: 155
+  },
+  grafico2: {
+    borderRadius: 20,
+    overflow: 'hidden', // Nasconde eventuali contenuti oltre i bordi arrotondati
+    alignItems: 'center',
+    marginTop: -125,
+  },
+  piechart: {
+    marginTop: 20,
+    backgroundColor: '#edf6d6',
+    borderRadius: 20,
+    overflow: 'hidden',
+    padding: 10,
+  },
+  etichetta1: {
+    position: 'absolute',
+    fontWeight: 'bold',
+    top: 410,
+    left: 170
+  },
+  etichetta2: {
+    position: 'absolute',
+    transform: [{ rotate: '-90deg' }],
+    fontWeight: 'bold',
+    left: -30,
+    top: 210,
+  }
 });
 
 export default Statistiche;
