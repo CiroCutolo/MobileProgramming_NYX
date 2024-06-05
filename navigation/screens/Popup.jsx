@@ -23,6 +23,7 @@ export default function Popup({ modalVisible, chiudiPopup}) {
       }
     };
 
+  //quando viene effettuato il login con successo, viene memorizzata la variabile @email per gestire l'inserimento degli eventi e l'apertura dei popup
   const _storeData = async (email) => {
       try {
         await AsyncStorage.setItem('@email', email);
@@ -30,7 +31,8 @@ export default function Popup({ modalVisible, chiudiPopup}) {
         console.log("Errore nell'inserimento in AsyncStorage");
       }
     };
-
+   //la verifica delle credenziali avviene con una select all'interno del DB. Nel caso in cui non ci fosse un risultato nella select, il 
+   //login non ha successo. In caso contrario viene memorizzata l'email e si viene indirizzati nella pagina Account
   const verificaCredenziali = async () => {
     try {
       if (!email || !password) {
@@ -56,7 +58,7 @@ export default function Popup({ modalVisible, chiudiPopup}) {
     setEmail('');
     setPassword('');
   };
-
+  //al clic del tasto registrati si viene indirzzati nella pagina di registrazione
   return (
     <SafeAreaView style={styles.container}>
       <Modal

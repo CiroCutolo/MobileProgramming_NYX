@@ -20,7 +20,7 @@ const statisticName = 'Statistiche';
 const addEventName = 'Aggiungi';
 
 const Tab = createBottomTabNavigator();
-
+ //contenitore della tab bar: gestisce il focus sulle icone considerando il click e l'apertura/chiusura del pop up di login
 export default function MainContainer() {
     const [modalVisible, setModalVisible] = useState(false);
 
@@ -32,6 +32,9 @@ export default function MainContainer() {
         setModalVisible(false);
     };
 
+    //queste funzioni gestiscono la visualizzazione del popup in base alla variabile memorizzata in Async:
+    //-se è diversa da null, l'utente ha effettuato l'accesso e il popup non deve essere visualizzato;
+    //-se è uguale a null, l'utente non ha effettuato l'accesso e il popup deve essere visualizzato
     const checkEmailAndNavigateinAccount = async (navigation) => {
         const email = await AsyncStorage.getItem('@email');
         if (email === null) {
@@ -76,12 +79,13 @@ export default function MainContainer() {
                     headerTitleStyle: { color: '#d9d9d9' },
                     headerStyle: {
                         backgroundColor: '#050d25',
-                        shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
-                        shadowOffset: { width: 0, height: 8 }, // Ombreggiatura solo in basso
+                        shadowColor: '#FFFFFF', 
+                        shadowOffset: { width: 0, height: 8 }, 
                         shadowOpacity: 0.8,
-                        shadowRadius: 5, // Aumenta il raggio per un'ombreggiatura più morbida
+                        shadowRadius: 5, 
                         elevation: 5,
                     },
+                    //gestisce la posizione del logo nell'header e la visualizzazione della barra in presenza della tastiera
                     headerRight: () => (
                         <TouchableOpacity onPress={() => navigation.navigate(homeName)}>
                             <Image
@@ -94,7 +98,7 @@ export default function MainContainer() {
                     tabBarStyle: {
                         backgroundColor: '#050d25',
                     },
-                    tabBarHideOnKeyboard: true, // This hides the tab bar when the keyboard is open
+                    tabBarHideOnKeyboard: true, 
                 })}
             >
                 <Tab.Screen name={homeName} component={HomeScreen} />

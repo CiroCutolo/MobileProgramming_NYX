@@ -16,11 +16,11 @@ interface Evento {
   immagine_path: string | null;
 }
 
-// CREA IL DB
+// Crea il DB
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
-// LEGGE GLI EVENTI
+//Legge gli eventi selezionandoli dal database
 const leggiEvento = async (): Promise<Evento[]> => {
   try {
     const db = await dbPromise;
@@ -49,7 +49,7 @@ interface Partecipanti {
   partecipazioni: number;
 }
 
-// Conta le partecipazioni per ogni evento
+//Conta le partecipazioni per ogni evento
 const leggiPartecipanti = async (): Promise<Partecipanti[]> => {
   try {
     const db = await dbPromise;
@@ -147,6 +147,7 @@ const HomeEventList: React.FC = () => {
     navigation.navigate('EventController');
   };
 
+  //renderizza gli item con le informazioni prese dal DB
   const renderItem = ({ item }: { item: Evento }) => {
     const partecipazioni = partecipanti.find(p => p.evento_id === item.id)?.partecipazioni || 0;
     const eventoDate = new Date(item.data_evento);
@@ -157,6 +158,8 @@ const HomeEventList: React.FC = () => {
       return date.toISOString().split('T')[0];
     }
 
+    //Viene gestita la visualizzazione dell'icona per aggiungere i nuovi partecipanti: nel caso in cui fosse un evento passato non viene data la possibilità
+    //di aaggiungere partecipanti e il numero viene definito come finale.
     return (
       <ZoomableView>
         <View style={styles.eventContainer}>
@@ -206,6 +209,7 @@ const HomeEventList: React.FC = () => {
     );
   };
 
+  //gestisce l'animazione sull'item selezionato
   const ZoomableView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [scale] = useState(new Animated.Value(1));
 
