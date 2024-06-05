@@ -43,7 +43,7 @@ export const leggiDatiEvento = async (): Promise<Statistiche[]> => {
 
 
 interface Organizzatori {
-  nome: string;
+  organizzatore: string;
   num_eventi: number;
 }
 
@@ -52,9 +52,9 @@ export const leggiDatiOrganizzatore = async (): Promise<Organizzatori[]> => {
 try {
     const db = await dbPromise;
     const results = await db.executeSql(`
-      SELECT E.organizzatore as organizzatore, COUNT(*) as num_eventi
-      FROM evento E
-      GROUP BY E.organizzatore
+      SELECT E.organizzatore, U.nome || ' ' || U.cognome as organizzatore, COUNT(*) as num_eventi
+      FROM evento E JOIN utente U ON E.organizzatore = U.email
+      GROUP BY E.organizzatore, U.nome, U.cognome
       ORDER BY num_eventi DESC
     `);
 
@@ -64,7 +64,7 @@ try {
       for (let i = 0; i < rows.length; i++) {
         const item = rows.item(i);
         organizzatori.push({
-          nome: item.organizzatore,
+          organizzatore: item.organizzatore,
           num_eventi: item.num_eventi
         });
       }
@@ -78,7 +78,7 @@ try {
 }
 
 
-const Statistiche: React.FC = () => {
+  const Statistiche: React.FC = () => {
   const [statistiche, setStatistiche] = useState<Statistiche[]>([]);
   const [organizzatori, setOrganizzatori] = useState<Organizzatori[]>([]);
 
@@ -110,7 +110,7 @@ const Statistiche: React.FC = () => {
 
   const validData = statistiche.filter(stat => stat.titolo_evento && stat.partecipanti !== undefined);
 
-  const validData2 = organizzatori.filter(stat => stat.nome && stat.num_eventi !== undefined);
+  const validData2 = organizzatori.filter(stat => stat.organizzatore && stat.num_eventi !== undefined);
 
   const eventiTotali = validData2.reduce((acc, curr) => acc + curr.num_eventi, 0);
 
@@ -154,7 +154,7 @@ const Statistiche: React.FC = () => {
   };
 
   const data2 = organizzatori.map((organizzatore) => ({
-    name: `${organizzatore.nome} (${Math.round((organizzatore.num_eventi / eventiTotali) * 100)}%)`,
+    name: organizzatore.organizzatore,
     num_eventi: organizzatore.num_eventi,
     color: generaColoriSulViola(),
   }));
@@ -165,7 +165,6 @@ const Statistiche: React.FC = () => {
       backgroundGradientTo: '#edf6d6',
       color: (opacity = 1) => `rgba(150, 130, 183, ${opacity})`,
       labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-      formatter: (value, name) => `${name} (${value}%)`, // Display name and percentage
     };
 
 
@@ -203,13 +202,12 @@ const Statistiche: React.FC = () => {
                       {validData2.length > 0 ? (
                         <PieChart
                           data={data2}
-                          width={Dimensions.get('window').width}
-                          height={validData2.length * 25}
+                          width={(Dimensions.get('window').width)}
+                          height={validData2.length * 100}
                           chartConfig={chartConfig2}
                           accessor="num_eventi"
                           backgroundColor="transparent"
-                          paddingLeft="15"
-                          absolute
+                          paddingLeft= "-50"
                         />
                         ) : (
                         <Text>Nessun dato disponibile</Text>
@@ -226,7 +224,7 @@ const Statistiche: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#050d25', // Extremely dark purple
+        backgroundColor: '#050d25',
         padding: 20,
     },
     grafico1: {

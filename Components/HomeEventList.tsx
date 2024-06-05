@@ -168,7 +168,6 @@ const HomeEventList: React.FC = () => {
             <View style={styles.eventInfosContainer}>
               <Text style={styles.eventTitle}>{item.titolo}</Text>
               <Text style={styles.eventDate}>Data: {item.data_evento}</Text>
-              <Text style={styles.eventOrganizer}>Organizzatore: {item.organizzatore}</Text>
               <Text style={styles.eventParticipants}>Numero atteso: {item.capienza}</Text>
               { isPastEvent && (
               <Text style={styles.eventParticipants}>Numero finale: {partecipazioni}</Text>
