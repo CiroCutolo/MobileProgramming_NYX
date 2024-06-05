@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Modal, Text, View, SafeAreaView, ScrollView, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
+import { StyleSheet, Modal, Text, View, SafeAreaView, ScrollView, TouchableOpacity, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import IconButton from './IconButton';
 
 interface Evento {
@@ -13,15 +13,18 @@ interface Evento {
   immagine_path: string;
 }
 
+//Viene definita l'interfaccia specificante le props del popup di dettagli.
 interface DetailsPopupProps {
-  modalVisible: boolean;
-  chiudiPopup: () => void;
-  item: Evento;
+  modalVisible: boolean; //Check per la visibilità del popup.
+  chiudiPopup: () => void; //Metodo intrinseco di chiusura.
+  item: Evento; //Item di tipo evento utile a ricevere i dettagli dell'evento da mostrare.
 }
 
+//Definizione del funciton component DetailsPopup.
 const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, item }) => {
   const imageSource = item.immagine_path ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
 
+  //Costruzione del componente.
   return (
     <SafeAreaView>
       <Modal
@@ -32,25 +35,29 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
       >
         <TouchableWithoutFeedback onPress={chiudiPopup}>
           <View style={styles.modalBackground}>
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-              <View style={styles.popup}>
-                <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-                  <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
-                  <Image
-                    style={styles.eventImagePopup}
-                    source={imageSource}
-                    onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
-                  />
-                  <View style={styles.eventInfosContainerPopup}>
-                    <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
-                    <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
-                    <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatori}</Text>
-                    <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} onPress={() => {}} />
-                    <Text style={styles.eventParticipantsPopup}>Partecipanti: {item.partecipanti}</Text>
-                  </View>
-                </ScrollView>
-              </View>
-            </TouchableWithoutFeedback>
+            <View style={styles.popup}>
+              <ScrollView
+                contentContainerStyle={styles.scrollViewContent}
+                showsVerticalScrollIndicator={false}
+                onTouchStart={() => Keyboard.dismiss()}
+              >
+                <TouchableOpacity activeOpacity={1}>
+                    <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
+                    <Image
+                      style={styles.eventImagePopup}
+                      source={imageSource}
+                      onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
+                    />
+                    <View style={styles.eventInfosContainerPopup}>
+                      <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
+                      <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
+                      <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatori}</Text>
+                      <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} onPress={() => {}} />
+                      <Text style={styles.eventParticipantsPopup}>Partecipanti: {item.partecipanti}</Text>
+                    </View>
+                </TouchableOpacity>
+              </ScrollView>
+            </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
@@ -70,7 +77,8 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     width: '90%',
-    height: '60%', // Altezza fissa per consentire lo scrolling
+    height: '60%',
+    pointerEvents: 'auto',
   },
   eventImagePopup: {
     width: '100%',
