@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 
+//crea una connessione (incapsulata in una Promise) verso il database
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
@@ -23,47 +24,58 @@ const EventController = ({ evento }) => {
   const [descriptionHeight, setDescriptionHeight] = useState(10);
   const navigation = useNavigation();
 
+  //React Hook che ti consente di sincronizzare un componente con un sistema esterno
   useEffect(() => {
+    //se è stato passato un oggetto evento come routeParams precompila i campi per consentirne la modifica
     if (evento) {
       setTitleValue(evento.titolo);
       setDescriptionValue(evento.descrizione);
       setDateFlag(true);
       setDate(new Date(evento.data_evento));
       setCapacityValue(evento.capienza ? evento.capienza.toString() : '');
+      //essendo l'immagine un attributo facoltativo effettuo un controllo specifico su di essa
       if (evento.immagine_path) {
         setSelectedImageURI({ uri: `file://${evento.immagine_path}` });
         setImagePath(evento.immagine_path);
       }
     }
   }, [evento]);
-
+  
+  //gestisce il cambiamento del TextInput relativo al titolo
   const handleTitleChange = (text) => {
     setTitleValue(text);
   };
 
+  //gestisce il cambiamento del TextInput relativo alla descrizione
   const handleDescriptionChange = (text) => {
     setDescriptionValue(text);
   };
 
+  //gestisce il cambiamento del TextInput relativo alla capacità massima
   const handleCapacityChange = (text) => {
     setCapacityValue(text);
   };
 
+  //gestisce la cancellazione dei campi dopo l'annullamento di un operazione di modifica/inserimento
   const handleUndoInsert = () => {
     handleEmptyFields();
     alert('Inserimento evento annullato');
+    //funzione di navigazione: naviga l'utente alla schemata Account
     navigation.navigate('Account');
   };
 
+  //gestisce la cancellazione di un evento
   const handleDeleteEvent = async () => {
     try {
-      const db = await dbPromise;
+      const db = await dbPromise; //connessione al db
+      //esecuzione query
       const results = await db.executeSql(`
-                DELETE
-                FROM evento
-                WHERE id = ?`, [evento.id]
+        DELETE
+        FROM evento
+        WHERE id = ?`, [evento.id]
       );
       alert('Evento cancellato correttamente');
+      //navigazione alla schemata Account
       navigation.navigate('Account');
     } catch (error) {
       console.error(error);
@@ -71,48 +83,34 @@ const EventController = ({ evento }) => {
     }
   };
 
-  const handleImagePicker = () => {
-    ImagePicker.openPicker({
-      width: 150,
-      height: 150,
-      cropping: true,
-    }).then(async (image) => {
-      const imageName = `img_${Date.now()}.jpg`;
-      const destDir = `${RNFS.DocumentDirectoryPath}/Locandine`;
-      const destPath = `${destDir}/${imageName}`;
-
-      try {
-        await RNFS.mkdir(destDir);
-        await RNFS.copyFile(image.path, destPath);
-        setSelectedImageURI({ uri: `file://${destPath}` });
-        setImagePath(destPath);
-      } catch (error) {
-        console.error(error);
-      }
-    });
-  };
-
+  //gestisce aggiunta evento
   const handleAddEvent = async () => {
     try {
+      //recupera l'email dell'utente/organizzatore dal localstorage
       const organizzatore = await AsyncStorage.getItem('@email');
       if (organizzatore) {
-        const db = await dbPromise;
-        const dateString = date.toISOString().split('T')[0];
+        const db = await dbPromise; //connessione db
+        const dateString = date.toISOString().split('T')[0]; //formatta stringa
+        //verifica se è stato passato evento tramite routeParam --> operazione di modifica
         if (evento) {
+          //esecuzione query
           await db.executeSql(
             'UPDATE evento SET titolo = ?, descrizione = ?, data_evento = ?, capienza = ?, immagine_path = ? WHERE id = ?',
             [titleValue, descriptionValue, dateString, capacityValue, imagePath, evento.id]
           );
           alert('Evento aggiornato correttamente');
+          //altrimenti --> operazione di inserimento
         } else {
+          //esecuzione query
           await db.executeSql(
             'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza, immagine_path) VALUES (?, ?, ?, ?, ?, ?)',
             [titleValue, descriptionValue, dateString, organizzatore, capacityValue, imagePath]
           );
           alert('Evento inserito correttamente');
         }
-        handleEmptyFields();
-        navigation.navigate('Account');
+        
+        handleEmptyFields(); //svuota campi
+        navigation.navigate('Account'); //navigazione alla schemrata Account
       } else {
         console.error('Errore nell\'acquisizione dati da AsyncStorage');
         alert('Errore: Organizzatore non trovato');
@@ -123,15 +121,42 @@ const EventController = ({ evento }) => {
     }
   };
 
+  //gestione svuotamento campi
   const handleEmptyFields = () => {
-    setTitleValue('');
-    setDescriptionValue('');
-    setCapacityValue('');
-    setDateFlag(false);
+    setTitleValue(''); //svuota TextINput titolo
+    setDescriptionValue(''); //svuota TextINput descrizione
+    setCapacityValue(''); //svuota TextINput capacità
+    setDateFlag(false); //ripristina il valore di default del Text che compre il datepicker
+    setSelectedImageURI(null); // Svuota lo stato dell'immagine
+    setImagePath(''); // Svuota il percorso dell'immagine
+  };
+
+  //gestione inserimento immagine
+  const handleImagePicker = () => {
+    //apre la galleria dell'utente per consentire la selezione, determinando le proprietà dell'img
+    ImagePicker.openPicker({
+      width: 150,
+      height: 150,
+      cropping: true, //consente di ritagliare l'immagine prima di confermare la selezione
+      //gestione del risultato della selzione
+    }).then(async (image) => {
+      const imageName = `img_${Date.now()}.jpg`; //nome univoco che utilizza la data di inserimento
+      const destDir = `${RNFS.DocumentDirectoryPath}/Locandine`; //percorso cartella di destinazione
+      const destPath = `${destDir}/${imageName}`; //crea percorso di destinazione = cartella + nome file
+
+      try {
+        await RNFS.mkdir(destDir); //crea la cartella di destinazione se non esiste
+        await RNFS.copyFile(image.path, destPath); //copia il file immagine (tramite path) nella cartella destinazione
+        setSelectedImageURI({ uri: `file://${destPath}` }); //imposta lo stato per visualizzare l'img tramite uri
+        setImagePath(destPath); //imposta il path didestinazione dello stato
+      } catch (error) {
+        console.error(error);
+      }
+    });
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>{/**/}
       <ScrollView style={styles.container}>
         <View style={styles.body}>
           <TouchableOpacity onPress={handleImagePicker}>
@@ -148,14 +173,14 @@ const EventController = ({ evento }) => {
               style={styles.input}
               value={titleValue}
               onChangeText={handleTitleChange}
-              placeholder="Aggiungi un titolo"
+              placeholder="Inserisci un titolo"
             />
             <TextInput
               style={[styles.input]}
               multiline
               value={descriptionValue}
               onChangeText={handleDescriptionChange}
-              placeholder="Aggiungi una descrizione"
+              placeholder="Inserisci una descrizione"
               onContentSizeChange={(e) => setDescriptionHeight(e.nativeEvent.contentSize.height)}
             />
             <DatePicker
@@ -166,7 +191,7 @@ const EventController = ({ evento }) => {
               minimumDate={new Date(Date.now())}
               locale='it'
               theme="dark"
-              title="Seleziona data dell'evento"
+              title="Seleziona la data dell'evento"
               buttonColor='purple'
               onConfirm={(date) => {
                 setModalVisible(false);
@@ -179,13 +204,13 @@ const EventController = ({ evento }) => {
             />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.input}>
-                {dateFlag ? date.toLocaleDateString('it-IT') : "Aggiungi data"}
+                {dateFlag ? date.toLocaleDateString('it-IT') : "Seleziona la data dell'evento"}
               </Text>
             </TouchableOpacity>
             <TextInput
               style={styles.input}
               keyboardType='numeric'
-              placeholder="Inserisci capienza massima"
+              placeholder="Inserisci la capienza massima"
               value={capacityValue}
               onChangeText={handleCapacityChange}
             />

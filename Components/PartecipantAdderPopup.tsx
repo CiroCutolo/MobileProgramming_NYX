@@ -71,7 +71,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
           <View style={styles.view1}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={styles.popup}>
-                <Text style={styles.PopupTitle}>Inserisci i dati del partecipante.</Text>
+                <Text style={styles.PopupTitle}>Inserisci i dati del partecipante</Text>
                 <TextInput
                   style={styles.input}
                   placeholder="Nome"
