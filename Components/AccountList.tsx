@@ -107,6 +107,17 @@ const AccountList = () => {
     navigation.navigate('Aggiungi', { evento: item});
   };
 
+  const logout = async () => {
+    console.log('Eseguendo il logout');
+    try {
+        await AsyncStorage.removeItem('@email');
+        console.log('Email rimossa con successo');
+
+        navigation.navigate('Home');
+    } catch (error) {
+        console.error('Logout fallito', error);
+    }
+  }
 
   const renderItem = ({ item }: { item: Evento }) => {
     const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
@@ -134,6 +145,9 @@ const AccountList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <View  style={styles.containerButton}>
+        <IconButton iconName='exit-outline' iconColor={'#D9D9D9'} onPress={logout} iconSize={40}></IconButton>
+      </View>
       <FlatList
         data={events}
         renderItem={renderItem}
@@ -257,7 +271,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#050d25'
-  }
+  },
+  containerButton: {
+    paddingLeft: 15,
+    flexDirection: 'row',
+    backgroundColor: '#050d25', // Viola estremamente scuro
+  },
 });
 
 export default AccountList;
