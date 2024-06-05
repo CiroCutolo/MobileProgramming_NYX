@@ -105,7 +105,7 @@ const AccountList = () => {
   };
 
   const handleEventPressModEvent = (item: Evento) => {
-    navigation.navigate('Aggiungi', { evento: item});
+    navigation.navigate('Aggiungi', { evento: item });
   };
 
   const logout = async () => {

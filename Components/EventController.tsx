@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Image, StyleSheet, TextInput, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Text, Alert } from 'react-native';
-import DatePicker from 'react-native-date-picker'
+import DatePicker from 'react-native-date-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import SQLite from 'react-native-sqlite-storage';
@@ -8,10 +8,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 
-
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
-
 
 const EventController = ({ evento }) => {
   const [titleValue, setTitleValue] = useState('');
@@ -20,55 +18,42 @@ const EventController = ({ evento }) => {
   const [imagePath, setImagePath] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [date, setDate] = useState(new Date());
-  const [capacityValue, setCapacityValue] = useState(null);
+  const [capacityValue, setCapacityValue] = useState('');
   const [dateFlag, setDateFlag] = useState(false);
   const [descriptionHeight, setDescriptionHeight] = useState(10);
   const navigation = useNavigation();
 
   useEffect(() => {
-    const selectEvent = async () => {
-      try {
-        const db = await dbPromise;
-        const results = await db.executeSql(`
-            SELECT *
-            FROM evento
-            WHERE id = ?`, [evento.id]
-        );
-        if (results.length > 0 && results[0].rows.length > 0) {
-          const evento = results[0].rows.item(0);
-          setTitleValue(evento.titolo);
-          setDescriptionValue(evento.descrizione);
-          setDateFlag(true);
-          setDate(new Date(evento.data_evento));
-          alert(`Evento Selezionato:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${date}`);
-        }
-      } catch (error) {
-        console.log(error);
-        alert("Errore nell'inserimento dell'evento");
+    if (evento) {
+      setTitleValue(evento.titolo);
+      setDescriptionValue(evento.descrizione);
+      setDateFlag(true);
+      setDate(new Date(evento.data_evento));
+      setCapacityValue(evento.capienza ? evento.capienza.toString() : '');
+      if (evento.immagine_path) {
+        setSelectedImageURI({ uri: `file://${evento.immagine_path}` });
+        setImagePath(evento.immagine_path);
       }
-    };
-    if (evento !== null) {
-      selectEvent();
     }
   }, [evento]);
 
   const handleTitleChange = (text) => {
     setTitleValue(text);
-  }
+  };
 
   const handleDescriptionChange = (text) => {
     setDescriptionValue(text);
-  }
+  };
 
   const handleCapacityChange = (text) => {
     setCapacityValue(text);
-  }
+  };
 
   const handleUndoInsert = () => {
     handleEmptyFields();
     alert('Inserimento evento annullato');
     navigation.navigate('Account');
-  }
+  };
 
   const handleDeleteEvent = async () => {
     try {
@@ -82,66 +67,68 @@ const EventController = ({ evento }) => {
       navigation.navigate('Account');
     } catch (error) {
       console.log(error);
-      alert("Errore nella cancellazione dell'evento");
+      alert('Errore nella cancellazione dell\'evento');
     }
-  }
+  };
 
   const handleImagePicker = () => {
     ImagePicker.openPicker({
       width: 150,
       height: 150,
       cropping: true,
-    })
-       .then(async (image) => {
-              const imageName = `img_${Date.now()}.jpg`;
-              const destDir = `${RNFS.DocumentDirectoryPath}/Locandine`;
-              const destPath = `${destDir}/${imageName}`;
+    }).then(async (image) => {
+      const imageName = `img_${Date.now()}.jpg`;
+      const destDir = `${RNFS.DocumentDirectoryPath}/Locandine`;
+      const destPath = `${destDir}/${imageName}`;
 
-              try {
-                // crea la directory se non esiste
-                await RNFS.mkdir(destDir);
-
-                // copia il file dell'immagine selezionata nella directory di destinazione
-                await RNFS.copyFile(image.path, destPath);
-
-                // imposta l'URI dell'immagine selezionata
-                setSelectedImageURI({ uri: `file://${destPath}` });
-                setImagePath(destPath);
-              } catch (error) {
-                console.log(error);
-              }
-       });
+      try {
+        await RNFS.mkdir(destDir);
+        await RNFS.copyFile(image.path, destPath);
+        setSelectedImageURI({ uri: `file://${destPath}` });
+        setImagePath(destPath);
+      } catch (error) {
+        console.log(error);
+      }
+    });
   };
 
-   const handleAddEvent = async () => {
-      try {
-        const organizzatore = await AsyncStorage.getItem('@email');
-        if (organizzatore !== null) {
-          const db = await dbPromise;
-          const dateString = date.toISOString().split('T')[0];
+  const handleAddEvent = async () => {
+    try {
+      const organizzatore = await AsyncStorage.getItem('@email');
+      if (organizzatore) {
+        const db = await dbPromise;
+        const dateString = date.toISOString().split('T')[0];
+        if (evento) {
+          await db.executeSql(
+            'UPDATE evento SET titolo = ?, descrizione = ?, data_evento = ?, capienza = ?, immagine_path = ? WHERE id = ?',
+            [titleValue, descriptionValue, dateString, capacityValue, imagePath, evento.id]
+          );
+          alert('Evento aggiornato correttamente');
+        } else {
           await db.executeSql(
             'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza, immagine_path) VALUES (?, ?, ?, ?, ?, ?)',
             [titleValue, descriptionValue, dateString, organizzatore, capacityValue, imagePath]
           );
-          alert(`Inserimento:\nTitolo: ${titleValue} \nDescrizione: ${descriptionValue} \nData: ${dateString} \nOrganizzatore: ${organizzatore} \nCapienza: ${capacityValue}`);
-          handleEmptyFields();
-          navigation.navigate('Account');
-        } else {
-          console.log("Errore nell'acquisizione dati da AsyncStorage");
-          alert("Errore: Organizzatore non trovato");
+          alert('Evento inserito correttamente');
         }
-      } catch (error) {
-        console.log(error);
-        alert("Errore: Verifica di aver inserito tutti i campi");
+        handleEmptyFields();
+        navigation.navigate('Account');
+      } else {
+        console.log('Errore nell\'acquisizione dati da AsyncStorage');
+        alert('Errore: Organizzatore non trovato');
       }
-    };
-
-    const handleEmptyFields = async () => {
-        setTitleValue('');
-        setDescriptionValue('');
-        setCapacityValue('');
-        setDateFlag(false);
+    } catch (error) {
+      console.log(error);
+      alert('Errore: Verifica di aver inserito tutti i campi');
     }
+  };
+
+  const handleEmptyFields = () => {
+    setTitleValue('');
+    setDescriptionValue('');
+    setCapacityValue('');
+    setDateFlag(false);
+  };
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -170,7 +157,7 @@ const EventController = ({ evento }) => {
               onChangeText={handleDescriptionChange}
               placeholder="Aggiungi una descrizione"
               onContentSizeChange={(e) => setDescriptionHeight(e.nativeEvent.contentSize.height)}
-              />
+            />
             <DatePicker
               modal
               mode="date"
@@ -183,12 +170,12 @@ const EventController = ({ evento }) => {
               buttonColor='purple'
               minuteInterval={5}
               onConfirm={(date) => {
-                setModalVisible(false)
-                setDateFlag(true)
-                setDate(date)
+                setModalVisible(false);
+                setDateFlag(true);
+                setDate(date);
               }}
               onCancel={() => {
-                setModalVisible(false)
+                setModalVisible(false);
               }}
             />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
@@ -197,20 +184,22 @@ const EventController = ({ evento }) => {
               </Text>
             </TouchableOpacity>
             <TextInput
-                style={styles.input}
-                keyboardType='numeric'
-                placeholder="Inserisci capienza massima"
-                value={capacityValue}
-                onChangeText={handleCapacityChange}
+              style={styles.input}
+              keyboardType='numeric'
+              placeholder="Inserisci capienza massima"
+              value={capacityValue}
+              onChangeText={handleCapacityChange}
             />
           </View>
           <View style={styles.buttonRow}>
             <TouchableOpacity onPress={handleAddEvent}>
               <Text style={styles.eventButton}>{ evento ? 'Modifica' : 'Inserisci'}</Text>
             </TouchableOpacity>
-            {evento ? (<TouchableOpacity onPress={handleDeleteEvent}>
-              <Icon name='delete' style={[styles.eventButton, styles.deleteButton]}></Icon>
-            </TouchableOpacity>) : null}
+            {evento ? (
+              <TouchableOpacity onPress={handleDeleteEvent}>
+                <Icon name='delete' style={[styles.eventButton, styles.deleteButton]} />
+              </TouchableOpacity>
+            ) : null}
             <TouchableOpacity onPress={handleUndoInsert}>
               <Text style={styles.eventButton}>Annulla</Text>
             </TouchableOpacity>
@@ -219,7 +208,7 @@ const EventController = ({ evento }) => {
       </ScrollView>
     </TouchableWithoutFeedback>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
