@@ -194,6 +194,8 @@ const EventList: React.FC = () => {
       filtered = filtered.filter(event => event.data_evento < currentDate);
     } else if (item === 'Evento Futuro') {
       filtered = filtered.filter(event => event.data_evento >= currentDate);
+    }else {
+      filtered = filtered.filter(event => (event.data_evento >= currentDate && event.data_evento < currentDate))
     }
 
     //Filtraggio basato sul titolo, a ricerca libera.
@@ -240,7 +242,6 @@ const EventList: React.FC = () => {
     events.forEach((event) => {
       if (event.immagine_path) {
         const filePath = `file://${event.immagine_path}`;
-        console.log(filePath);
         RNFS.exists(filePath)
           .then(exists => {
             setImageExists(prevState => ({
