@@ -52,24 +52,10 @@ const App = () => {
     prepareDB();
   }, []);
 
-  const aggiungiEvento = async () => {
-    try {
-      const db = await dbPromise;
-      await db.executeSql(
-        'INSERT INTO evento (titolo, descrizione, data_evento, organizzatore, capienza) VALUES (?, ?, ?, ?, ?)',
-        ['Festa di Aury', 'siete gay', '2024-06-06', 'cirocutolo2002@gmail.com', 2]
-      );
-      setResult('Evento aggiunto con successo');
-    } catch (error) {
-      console.error('Errore nell\'aggiungere l\'evento:', error);
-      setResult('Errore nell\'aggiungere l\'evento.');
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container}>
       <MainContainer />
-      <Button title="Aggiungi" onPress={aggiungiEvento} />
       {result ? <Text style={styles.resultText}>{result}</Text> : null}
     </SafeAreaView>
   );
