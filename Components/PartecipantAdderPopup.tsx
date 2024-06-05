@@ -48,7 +48,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
   };
 
 
-  
+
   return (
     <SafeAreaView>
       <Modal
@@ -83,6 +83,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
                 {isDatePickerVisible && (
                 <DatePicker
                   modal
+                  locale='it'
                   open={isDatePickerVisible}
                   date={date}
                   onConfirm={(date) => {
