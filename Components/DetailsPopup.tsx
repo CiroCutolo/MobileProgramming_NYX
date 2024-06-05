@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Modal, Text, View, SafeAreaView, Keyboard, TouchableWithoutFeedback, Image, ScrollView } from 'react-native';
+import { StyleSheet, Modal, Text, View, SafeAreaView, ScrollView, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
 import IconButton from './IconButton';
 
 interface Evento {
@@ -34,13 +34,13 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
           <View style={styles.modalBackground}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={styles.popup}>
-                <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
-                <Image
-                  style={styles.eventImagePopup}
-                  source={imageSource}
-                  onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
-                />
-                <ScrollView style={styles.scrollView}>
+                <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
+                  <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
+                  <Image
+                    style={styles.eventImagePopup}
+                    source={imageSource}
+                    onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
+                  />
                   <View style={styles.eventInfosContainerPopup}>
                     <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
                     <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
@@ -70,8 +70,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 20,
     width: '90%',
-    maxHeight: '70%', 
-    justifyContent: 'center', 
+    height: '60%', // Altezza fissa per consentire lo scrolling
   },
   eventImagePopup: {
     width: '100%',
@@ -112,8 +111,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginTop: 10,
   },
-  scrollView: {
-    flex: 1,
+  scrollViewContent: {
+    flexGrow: 1,
   },
 });
 
