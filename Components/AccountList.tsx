@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import IconButton from './IconButton';
-import Icon from 'react-native-vector-icons/Feather';
+import IonIcons from 'react-native-vector-icons/Ionicons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView, View, Text, StyleSheet, FlatList, Image, TouchableWithoutFeedback, Animated } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import PartecipantAdderPopup from './PartecipantAdderPopup';
@@ -8,8 +9,6 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 
-
-// Definisco l'evento
 interface Evento {
   id: number;
   titolo: string;
@@ -26,10 +25,8 @@ const AccountList = () => {
   const [events, setEvents] = useState<Evento[]>([]);
   const [selectedEventUserInsert, setSelectedEventUserInsert] = useState<Evento | null>(null);
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState(false);
-  const [result, setResult] = useState('');
   const navigation = useNavigation();
   const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
-
 
   useEffect(() => {
     leggiEvento()
@@ -70,19 +67,18 @@ const AccountList = () => {
   };
 
   const update = async () => {
-      try {
-        const updateEvents = await leggiEvento();
-        setEvents(updateEvents)
-      } catch (err) {
-        console.log(err);
-      }
-    };
+    try {
+      const updateEvents = await leggiEvento();
+      setEvents(updateEvents)
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-    useEffect(() => {
-      update();
-    }, []);
+  useEffect(() => {
+    update();
+  }, []);
 
-  //controlla se l'immagine esiste
   useEffect(() => {
     events.forEach((event) => {
       if (event.immagine_path) {
@@ -113,7 +109,6 @@ const AccountList = () => {
     try {
         await AsyncStorage.removeItem('@email');
         console.log('Email rimossa con successo');
-
         navigation.navigate('Home');
     } catch (error) {
         console.error('Logout fallito', error);
@@ -125,8 +120,8 @@ const AccountList = () => {
     return(
     <View style={styles.eventContainer}>
       <View style={styles.iconContainer}>
-        <IconButton iconName='create-outline' iconSize={28} iconColor={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
-        <IconButton iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
+        <IonIcons name='create-outline' size={28} color={'#D9D9D9'} onPress={() => handleEventPressModEvent(item)} />
+        <IonIcons name='person-add-outline' size={25} color={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
       </View>
       <View>
         <Image
@@ -146,9 +141,9 @@ const AccountList = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View  style={styles.containerButton}>
-        <IconButton iconName='exit-outline' iconColor={'#D9D9D9'} onPress={logout} iconSize={40}></IconButton>
-        <Icon style={{paddingLeft: 310}} name='refresh-cw' color={'#D9D9D9'} onPress={update} size={30}></Icon>
+      <View style={styles.containerButton}>
+        <MaterialIcons name='logout' color={'#D9D9D9'} onPress={logout} size={40}/>
+        <FontAwesome name='refresh' color={'#D9D9D9'} onPress={update} size={35}/>
       </View>
       <FlatList
         data={events}
@@ -167,40 +162,19 @@ const AccountList = () => {
   );
 };
 
-const ZoomableView: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [scale] = useState(new Animated.Value(1));
-
-  const handlePressIn = () => {
-    Animated.spring(scale, {
-      toValue: 1.1,
-      friction: 3,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const handlePressOut = () => {
-    Animated.spring(scale, {
-      toValue: 1,
-      friction: 3,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  return (
-    <TouchableWithoutFeedback onPressIn={handlePressIn} onPressOut={handlePressOut}>
-      <Animated.View style={{ transform: [{ scale }] }}>
-        {children}
-      </Animated.View>
-    </TouchableWithoutFeedback>
-  );
-};
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: '#050d25', // Viola estremamente scuro
+    backgroundColor: '#050d25',
     alignContent: 'space-evenly',
+    padding: '2%',
+  },
+
+  containerButton: {
+    marginHorizontal: '5%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   eventContainer: {
@@ -208,15 +182,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderRadius: 20,
-    borderColor: '#050d25', // Viola leggermente più scuro
+    borderColor: '#050d25',
     borderWidth: 5,
-    backgroundColor: '#050d25', // Viola leggermente più scuro
+    backgroundColor: '#050d25',
     margin: 10,
     padding: 10,
-    shadowColor: '#FFFFFF', // Colore bianco per l'ombreggiatura
-    shadowOffset: { width: 8, height: 8 }, // Ombreggiatura solo in basso
+    shadowColor: '#FFFFFF',
+    shadowOffset: { width: 8, height: 8 },
     shadowOpacity: 0.8,
-    shadowRadius: 5, // Aumenta il raggio per un'ombreggiatura più morbida
+    shadowRadius: 5,
     elevation: 5,
   },
   eventIconImg: {
@@ -236,24 +210,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     top: 10,
     fontSize: 16,
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9',
   },
   eventDate: {
     flex: 1,
     fontWeight: 'bold',
     top: 5,
     fontSize: 16,
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
-  },
-  eventOrganizer: {
-    flex: 1,
-    fontSize: 16,
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9',
   },
   eventParticipants: {
     fontSize: 16,
     alignSelf: 'flex-end',
-    color: '#D9D9D9', // Grigio chiaro per contrasto con il testo
+    color: '#D9D9D9',
     fontWeight: 'bold',
   },
   iconContainer: {
@@ -264,20 +233,6 @@ const styles = StyleSheet.create({
     padding: 5,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-
-  buttonAddEventStyle: {
-    position: 'absolute',
-    right: 25,
-    padding: 5,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#050d25'
-  },
-  containerButton: {
-    paddingLeft: 15,
-    flexDirection: 'row',
-    backgroundColor: '#050d25', // Viola estremamente scuro
   },
 });
 
