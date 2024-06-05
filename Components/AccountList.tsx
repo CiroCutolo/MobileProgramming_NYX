@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import IconButton from './IconButton';
+import Icon from 'react-native-vector-icons/Feather';
 import { SafeAreaView, View, Text, StyleSheet, FlatList, Image, TouchableWithoutFeedback, Animated } from 'react-native';
 import SQLite from 'react-native-sqlite-storage';
 import PartecipantAdderPopup from './PartecipantAdderPopup';
@@ -147,6 +148,7 @@ const AccountList = () => {
     <SafeAreaView style={styles.container}>
       <View  style={styles.containerButton}>
         <IconButton iconName='exit-outline' iconColor={'#D9D9D9'} onPress={logout} iconSize={40}></IconButton>
+        <Icon style={{paddingLeft: 310}} name='refresh-cw' color={'#D9D9D9'} onPress={update} size={30}></Icon>
       </View>
       <FlatList
         data={events}
