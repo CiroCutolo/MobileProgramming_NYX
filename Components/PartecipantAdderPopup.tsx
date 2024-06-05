@@ -7,12 +7,14 @@ import SuccessPopup from './SuccessScreen';
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
+//Definizione props per il PartecipantAdderPopup.
 interface PartecipantAdderPopupProps {
-  modalVisible: boolean;
-  chiudiPopup: () => void;
-  eventoId: number;
+  modalVisible: boolean; //Check di visibilità.
+  chiudiPopup: () => void; //Medoto intrinseco per la chiusura.
+  eventoId: number; //id evento.
 }
 
+//Definizione del componente.
 const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisible, chiudiPopup, eventoId }) => {
   const [nome, setNome] = useState('');
   const [cognome, setCognome] = useState('');
@@ -23,9 +25,16 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
   const [affirmativeOrnegative, setAffirmativeOrNegative] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
 
+  //Metodo utile all'aggiunta di un partecipante nella tabella 'partecipazione'.
   const aggiungiPartecipazione = async () => {
     try {
-      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome)) {
+      //Si controlla il formato del nome, cognome e della data
+      const sixteenYearsAgo = new Date(
+        date.getFullYear() - 14,
+        date.getMonth(),
+        date.getDate()
+      );//Se si vuole aggiungere un minore avente meno di 14 anni, viene bloccata l'aggiunta.
+      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome) || date >= sixteenYearsAgo ) {
         setAffirmativeOrNegative(false);
         setShowPopup(true);
         return;
@@ -48,7 +57,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
   };
 
 
-
+  //Viene costruito il componente.
   return (
     <SafeAreaView>
       <Modal

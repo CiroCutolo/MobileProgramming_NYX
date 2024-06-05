@@ -13,15 +13,18 @@ interface Evento {
   immagine_path: string;
 }
 
+//Viene definita l'interfaccia specificante le props del popup di dettagli.
 interface DetailsPopupProps {
-  modalVisible: boolean;
-  chiudiPopup: () => void;
-  item: Evento;
+  modalVisible: boolean; //Check per la visibilità del popup.
+  chiudiPopup: () => void; //Metodo intrinseco di chiusura.
+  item: Evento; //Item di tipo evento utile a ricevere i dettagli dell'evento da mostrare.
 }
 
+//Definizione del funciton component DetailsPopup. 
 const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, item }) => {
   const imageSource = item.immagine_path ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
 
+  //Costruzione del componente.
   return (
     <SafeAreaView>
       <Modal
@@ -44,7 +47,7 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
                     <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
                     <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
                     <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatori}</Text>
-                    <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} />
+                    <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} onPress={function (): void {} } />
                     <Text style={styles.eventParticipantsPopup}>{item.partecipanti}</Text>
                 </View>
               </View>

@@ -8,26 +8,32 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
+//Definizione interfaccia partecipazione associante nome e cognome del partecipante all'id dell'evento.
 interface Partecipazione {
-    id: number;
-    nome: string;
-    cognome: string;
+    id: number; //id evento.
+    nome: string; //nome partecipante.
+    cognome: string; //cognome partecipante.
 }
 
+//Definizione props del componente EventPartecipantPopup.
 interface EventPartecipantsPopupProps {
-    modalVisible: boolean;
-    chiudiPopup: () => void;
-    eventId: number;
+    modalVisible: boolean; //Check per la visibilità.
+    chiudiPopup: () => void; //Metodo intrinseco di chiusura.
+    eventId: number; //Id dell'evento di cui mostrare i partecipanti.
 }
 
+//Lettura dei partecipanti ad un evento.
 const leggiPartecipazione = async (eventId: number): Promise<Partecipazione[]> => {
     try {
         const db = await dbPromise;
         const results = await db.executeSql('SELECT id, nome, cognome FROM partecipazione WHERE evento_id = ?', [eventId]);
+
+        //Si controlla che la query abbia prodotto risultato.
         if (results.length > 0) {
             const rows = results[0].rows;
             const partecipants: Partecipazione[] = [];
             for (let i = 0; i < rows.length; i++) {
+                //Viene popolato l'array di partecipanti per ogni evento.
                 partecipants.push(rows.item(i));
             }
             return partecipants;
@@ -39,8 +45,11 @@ const leggiPartecipazione = async (eventId: number): Promise<Partecipazione[]> =
     }
 };
 
+//Viene definito il function component.
 const EventPartecipantsPopup: React.FC<EventPartecipantsPopupProps> = ({ modalVisible, chiudiPopup, eventId }) => {
     const [partecipants, setPartecipants] = useState<Partecipazione[]>([]);
+
+    //Viene definito un hook per la lettura dei partecipanti.
     useEffect(() => {
         leggiPartecipazione(eventId)
             .then((data) => {
@@ -51,6 +60,7 @@ const EventPartecipantsPopup: React.FC<EventPartecipantsPopupProps> = ({ modalVi
             .catch((err) => console.log(err));
     }, [eventId]);
 
+    //Viene costruito il componente.
     return (
         <Modal
             visible={modalVisible}

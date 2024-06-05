@@ -10,7 +10,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import EventPartecipantsPopup from './EventPartecipantsPopup';
 import RNFS from 'react-native-fs';
 
-
+//Interfaccia che definisce le specifiche di un evento.
 interface Evento {
   id: number;
   titolo: string;
@@ -22,21 +22,29 @@ interface Evento {
   immagine_path: string;
 }
 
+/*******************************************************/ 
+/*Parte di codice dedicata alle comunicazioni con il DB*/
+/*******************************************************/
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
+//Lettura di tutte le tuple presenti nella tabella 'Evento'
 const leggiEvento = async (): Promise<Evento[]> => {
   try {
     const db = await dbPromise;
     const results = await db.executeSql('SELECT * FROM evento');
+
+    //Si controlla se la query ha prodotto risultato
     if (results.length > 0) {
       const rows = results[0].rows;
       const events: Evento[] = [];
       for (let i = 0; i < rows.length; i++) {
+        //Si inserisce l'evento di indice 'i' nella collezione di eventi.
         events.push(rows.item(i));
       }
       return events;
     }
+
     return [];
   } catch (error) {
     console.error('Errore nella lettura degli eventi', error);
@@ -44,6 +52,7 @@ const leggiEvento = async (): Promise<Evento[]> => {
   }
 };
 
+//Lettura, tramite 'count()', del numero di partecipanti
 const leggiNumeroPartecipanti = async () => {
   try {
     const db = await dbPromise;
@@ -54,11 +63,13 @@ const leggiNumeroPartecipanti = async () => {
     GROUP BY P.evento_id
     `);
 
+    //Si controlla se la query ha prodotto risultato
     if (results.length > 0) {
       const rows = results[0].rows;
       const partecipazioni: { [key: number]: number } = {};
       for (let i = 0; i < rows.length; i++) {
         const item = rows.item(i);
+        //si inserisce per ogni evento, utilizzato come indice '[item.evento]', il numero di partecipanti.
         partecipazioni[item.evento] = item.partecipazioni;
       }
       return partecipazioni;
@@ -70,20 +81,25 @@ const leggiNumeroPartecipanti = async () => {
   }
 };
 
+//Lettura del nome e del cognome legati alla mail dell'organizzatore unendoli in una sola variabile
 const leggiOrganizzatore = async () => {
   try {
     const db = await dbPromise;
+
+    //l'operatore || ' ' || serve ad unire gli attributi 'U.nome' ed 'U.cognome'
     const results = await db.executeSql(`
       SELECT E.id as evento_id, U.nome || ' ' || U.cognome as organizzatore
       FROM evento E
       JOIN utente U ON E.organizzatore = U.email
     `);
 
+    //Si controlla se la query ha prodotto risultato
     if (results.length > 0) {
       const rows = results[0].rows;
       const organizzatori: { [key: number]: string } = {};
       for (let i = 0; i < rows.length; i++) {
         const item = rows.item(i);
+        //Viene inserito il valore nome+cognome nell'array di organizzatori, indicizzato per evento.
         organizzatori[item.evento_id] = item.organizzatore;
       }
       return organizzatori;
@@ -95,15 +111,21 @@ const leggiOrganizzatore = async () => {
   }
 };
 
+/********************************************************/ 
+/*******Parte di codice dedicata alla ZoomableView*******/
+/********************************************************/
+//Vengono definiti i props utili al componente Zoomable view
 interface ZoomableViewProps {
-  children: React.ReactNode;
-  onPress: () => void;
-  viewStyle?: StyleProp<ViewStyle>
+  children: React.ReactNode; //Si ragiona su dei nodi che nell'albero sono sempre figli.
+  onPress: () => void; //Si aggiunge la possibilità di utilizzare una funzione con trigger 'onPress'
+  viewStyle?: StyleProp<ViewStyle> //Si permette la definizione di uno stile per il componente.
 }
 
+//Viene definito un function component che al click permetta lo zoom dei componenti figli.
 const ZoomableView: React.FC<ZoomableViewProps> = ({ children, onPress, viewStyle }) => {
   const [scale] = useState(new Animated.Value(1));
 
+  //Viene gestito il click 'in'.
   const handlePressIn = () => {
     Animated.spring(scale, {
       toValue: 1.1,
@@ -112,6 +134,7 @@ const ZoomableView: React.FC<ZoomableViewProps> = ({ children, onPress, viewStyl
     }).start();
   };
 
+  //Viene gestita la "fine" del click.
   const handlePressOut = () => {
     Animated.spring(scale, {
       toValue: 1,
@@ -120,6 +143,7 @@ const ZoomableView: React.FC<ZoomableViewProps> = ({ children, onPress, viewStyl
     }).start();
   };
 
+  //Viene costruita la struttura del componente.
   return (
     <TouchableWithoutFeedback style={viewStyle} onPressIn={handlePressIn} onPressOut={handlePressOut} onPress={onPress}>
       <Animated.View style={[{ transform: [{ scale }] }, viewStyle]}>
@@ -129,7 +153,13 @@ const ZoomableView: React.FC<ZoomableViewProps> = ({ children, onPress, viewStyl
   );
 };
 
+/*********************************************************/ 
+/*********Parte di codice dedicata alla EventList*********/
+/*********************************************************/
+//Viene definto il componente principale 'EventList' che mostra la lista di eventi letta dal DB.
 const EventList: React.FC = () => {
+
+  //Definizione di tutti i local states.
   const [events, setEvents] = useState<Evento[]>([]);
   const [filteredEvents, setFilteredEvents] = useState<Evento[]>([]);
   const [selectedEventEventDetails, setSelectedEventEventDetails] = useState<Evento | null>(null);
@@ -142,27 +172,31 @@ const EventList: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
 
-
+  //Definizioni dei valori dei filtri.
   const data = [
     { key: '1', value: 'Evento Passato' },
     { key: '2', value: 'Evento Futuro' }
   ];
 
+  //Funzione utile all'ottenimento della data corrente come iso-string contenente solo 'ANNO-MESE-GIORNO'
   const getCurrentDate = () => {
     const date = new Date();
     return date.toISOString().split('T')[0];
   }
 
+  //Definizione della logica riguardante il filtraggio degli eventi.
   const handleFilter = (item: string) => {
     const currentDate = getCurrentDate();
     let filtered = events;
 
+    //Filtraggio degli eventi in base alle etichette del dropdown select.
     if (item === 'Evento Passato') {
       filtered = filtered.filter(event => event.data_evento < currentDate);
     } else if (item === 'Evento Futuro') {
       filtered = filtered.filter(event => event.data_evento >= currentDate);
     }
 
+    //Filtraggio basato sul titolo, a ricerca libera.
     if (searchText) {
       filtered = filtered.filter(event => event.titolo.toLowerCase().includes(searchText.toLowerCase()));
     }
@@ -170,16 +204,18 @@ const EventList: React.FC = () => {
     setFilteredEvents(filtered);
   }
 
+  //Funzione utile all'esecuzione complessiva delle funzioni utili ad ottenere i vari dati associati agli eventi. 
   const fetchData = async () => {
     try {
-      const eventData = await leggiEvento();
-      const partecipazioniEventi = await leggiNumeroPartecipanti();
-      const organizzatoriEventi = await leggiOrganizzatore();
+      const eventData = await leggiEvento(); //Lista Eventi.
+      const partecipazioniEventi = await leggiNumeroPartecipanti(); //Numeri partecipanti degli eventi.
+      const organizzatoriEventi = await leggiOrganizzatore(); //Nomi e cognomi degli organizzatori.
 
+      //Viene creato un nuovo array comprendente tutte le proprietà degli eventi e modificante le proprietà partecipanti ed organizzatori.
       const eventsDetails = eventData.map(event => ({
         ...event,
-        partecipanti: partecipazioniEventi[event.id] || 0,
-        organizzatori: organizzatoriEventi[event.id] || 'Non disponibile'
+        partecipanti: partecipazioniEventi[event.id] || 0, //Se not null si prende il valore, altrimenti 0.
+        organizzatori: organizzatoriEventi[event.id] || 'Non disponibile' //Se not null si prende il valore, altrimenti 'Non disponibile'.
       }));
 
       setEvents(eventsDetails);
@@ -189,15 +225,17 @@ const EventList: React.FC = () => {
     }
   };
 
+  //Definizione del hook richiamante il recupero dei dati degli eventi.
   useEffect(() => {
     fetchData();
   }, []);
 
+  //Definizione del hook richiamante il filtraggio degli eventi.
   useEffect(() => {
     handleFilter(selected);
   }, [selected, searchText, events]);
 
-  //controlla se l'immagine esiste
+  //Definizione del hook controllante l'esistenza  dell'immagine.
   useEffect(() => {
     events.forEach((event) => {
       if (event.immagine_path) {
@@ -215,21 +253,43 @@ const EventList: React.FC = () => {
     });
   }, [events]);
 
+
+  //Apertura del popup contenente i dettagli dell'evento.
   const handleEventPressEventDetails = (item: Evento) => {
-    setSelectedEventEventDetails(item);
-    setModalVisibleEventDetails(true);
+    setSelectedEventEventDetails(item); //Viene passato l'evento da cui leggere i dettagli.
+    setModalVisibleEventDetails(true); //Viene mostrato il popup.
   };
 
+  //Apertura del popup utile all'inserimento dei partecipanti.
   const handleEventPressUserInsert = (item: Evento) => {
-    setSelectedEventUserInsert(item);
-    setModalVisibleUserInsert(true);
+    setSelectedEventUserInsert(item); //Viene passato l'evento a cui associare il partecipante.
+    setModalVisibleUserInsert(true); //Viene mostrato il popup.
   };
 
+  //Apertura del popup contenente la lista dei partecipanti.
   const handleEventPressEventPartecipants = (item: Evento) => {
-    setSelectedEventPartecipantsList(item);
-    setModalVisiblePartecipantsList(true);
+    setSelectedEventPartecipantsList(item); //Viene passato l'evento per il quale ottenere la lista di partecipanti.
+    setModalVisiblePartecipantsList(true); //Viene mostrato il popup.
   };
 
+  //Chiusura del popup (Uguale per i metodi di chiusura sottostanti).
+  const chiudiPopup = () => {
+    setModalVisibleEventDetails(false); //Viene reso invisibile il popup.
+    setSelectedEventEventDetails(null); //Viene impostato a 'null' l'item passato come parametro.
+  };
+
+  const chiudiPopupUserInsert = () => {
+    setModalVisibleUserInsert(false);
+    setSelectedEventUserInsert(null);
+    fetchData();
+  };
+
+  const chiudiPopupEventPartecipants = () => {
+    setModalVisiblePartecipantsList(false);
+    setSelectedEventPartecipantsList(null);
+  };
+
+  //Viene renderizzato graficamente il componente mostrante la lista degli eventi.
   const renderItem = ({ item }: { item: Evento }) => {
     const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
     return (
@@ -255,22 +315,7 @@ const EventList: React.FC = () => {
     );
   }
 
-  const chiudiPopup = () => {
-    setModalVisibleEventDetails(false);
-    setSelectedEventEventDetails(null);
-  };
-
-  const chiudiPopupUserInsert = () => {
-    setModalVisibleUserInsert(false);
-    setSelectedEventUserInsert(null);
-    fetchData();
-  };
-
-  const chiudiPopupEventPartecipants = () => {
-    setModalVisiblePartecipantsList(false);
-    setSelectedEventPartecipantsList(null);
-  };
-
+  //Viene costruita la pagina mostrante i filtri, la lista di eventi ed i vari popup invisibili.
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBarContainer}>
