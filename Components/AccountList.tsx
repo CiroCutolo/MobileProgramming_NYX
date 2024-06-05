@@ -9,6 +9,7 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import RNFS from 'react-native-fs';
 
+//definisco interfaccia Evento
 interface Evento {
   id: number;
   titolo: string;
@@ -18,6 +19,7 @@ interface Evento {
   partecipanti: number;
 }
 
+//crea una connessione (incapsulata in una Promise) verso il database
 SQLite.enablePromise(true);
 const dbPromise = SQLite.openDatabase({ name: 'nyx.db', location: 'default' });
 
@@ -26,8 +28,9 @@ const AccountList = () => {
   const [selectedEventUserInsert, setSelectedEventUserInsert] = useState<Evento | null>(null);
   const [modalVisibleUserInsert, setModalVisibleUserInsert] = useState(false);
   const navigation = useNavigation();
-  const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({});
+  const [imageExists, setImageExists] = useState<{ [key: number]: boolean }>({}); //oggetto di stato avrà chiavi numeriche e valori booleani
 
+  //React Hook che ti consente di sincronizzare un componente con un sistema esterno
   useEffect(() => {
     leggiEvento()
       .then((data) => {
@@ -37,12 +40,15 @@ const AccountList = () => {
       })
       .catch((err) => console.log(err));
   }, []);
-
+  
+  //Lettura di tutte le tuple presenti nella tabella 'Evento' organizzate dall'utente
   const leggiEvento = async (): Promise<Evento[]> => {
     try {
+      //recupera valore della chiave @email corrispondente all'email dell'utente loggato
       const utente = await AsyncStorage.getItem('@email');
       if (utente !== null) {
         const db = await dbPromise;
+        //la si utilizza per effettuare la select degli eventi organizzati
         const results = await db.executeSql(
           `SELECT *
             FROM evento
@@ -65,7 +71,8 @@ const AccountList = () => {
       return [];
     }
   };
-
+  
+  //consente di aggiornate la lista degli eventi
   const update = async () => {
     try {
       const updateEvents = await leggiEvento();
@@ -95,18 +102,23 @@ const AccountList = () => {
     });
   }, [events]);
 
+  //gestisce aggiunta di un partecipante
   const handleEventPressUserInsert = (item: Evento) => {
     setSelectedEventUserInsert(item);
     setModalVisibleUserInsert(true);
   };
 
+  //gestione modifica evento
   const handleEventPressModEvent = (item: Evento) => {
+    //navigazione verso schermata di aggiunta/modifica + passa parametri di navigazione
     navigation.navigate('Aggiungi', { evento: item });
   };
 
+  //gestione logout
   const logout = async () => {
     console.log('Eseguendo il logout');
     try {
+        //rimuove il valore l'email dell'utente loggato dal localstorage
         await AsyncStorage.removeItem('@email');
         console.log('Email rimossa con successo');
         navigation.navigate('Home');
@@ -115,6 +127,7 @@ const AccountList = () => {
     }
   }
 
+  //realizza ogni componente della lista che corrisponde ad un evento
   const renderItem = ({ item }: { item: Evento }) => {
     const imageSource = imageExists[item.id] ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
     return(
