@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Modal, Text, View, SafeAreaView, ScrollView, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
+import { StyleSheet, Modal, Text, View, SafeAreaView, Keyboard, TouchableWithoutFeedback, Image, ScrollView } from 'react-native';
 import IconButton from './IconButton';
 
 interface Evento {
@@ -13,18 +13,15 @@ interface Evento {
   immagine_path: string;
 }
 
-//Viene definita l'interfaccia specificante le props del popup di dettagli.
 interface DetailsPopupProps {
-  modalVisible: boolean; //Check per la visibilità del popup.
-  chiudiPopup: () => void; //Metodo intrinseco di chiusura.
-  item: Evento; //Item di tipo evento utile a ricevere i dettagli dell'evento da mostrare.
+  modalVisible: boolean;
+  chiudiPopup: () => void;
+  item: Evento;
 }
 
-//Definizione del funciton component DetailsPopup.
 const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, item }) => {
   const imageSource = item.immagine_path ? { uri: `file://${item.immagine_path}` } : require('./imgs/Nyx_icon.jpg');
 
-  //Costruzione del componente.
   return (
     <SafeAreaView>
       <Modal
@@ -34,22 +31,22 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
         onRequestClose={chiudiPopup}
       >
         <TouchableWithoutFeedback onPress={chiudiPopup}>
-          <View style={styles.view1}>
+          <View style={styles.modalBackground}>
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
               <View style={styles.popup}>
-                <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-                  <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
-                  <Image
-                    style={styles.eventImagePopup}
-                    source={imageSource}
-                    onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
-                  />
+                <Text style={styles.eventTitlePopup}>{item.titolo}</Text>
+                <Image
+                  style={styles.eventImagePopup}
+                  source={imageSource}
+                  onError={(error) => console.log('Errore caricamento immagine', error.nativeEvent.error)}
+                />
+                <ScrollView style={styles.scrollView}>
                   <View style={styles.eventInfosContainerPopup}>
                     <Text style={styles.eventDatePopup}>Data: {item.data_evento}</Text>
                     <Text style={styles.eventDescriptionPopup}>Descrizione: {item.descrizione}</Text>
                     <Text style={styles.eventOrganizerPopup}>Organizzatore: {item.organizzatori}</Text>
                     <IconButton buttonStyle={styles.eventPartecipantsIcon} iconName='people-outline' iconSize={25} iconColor={'#050d25'} onPress={() => {}} />
-                    <Text style={styles.eventParticipantsPopup}>{item.partecipanti}</Text>
+                    <Text style={styles.eventParticipantsPopup}>Partecipanti: {item.partecipanti}</Text>
                   </View>
                 </ScrollView>
               </View>
@@ -62,8 +59,9 @@ const DetailsPopup: React.FC<DetailsPopupProps> = ({ modalVisible, chiudiPopup, 
 };
 
 const styles = StyleSheet.create({
-  view1: {
+  modalBackground: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -71,13 +69,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#f5ebcf',
     padding: 20,
     borderRadius: 20,
-    width: '85%',
-    height: '57%',
-    alignContent: 'center',
+    width: '90%',
+    maxHeight: '70%', 
+    justifyContent: 'center', 
   },
   eventImagePopup: {
     width: '100%',
-    height: 250,
+    height: 200,
     borderRadius: 10,
   },
   eventTitlePopup: {
@@ -114,9 +112,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-end',
     marginTop: 10,
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    paddingBottom: 20,
+  scrollView: {
+    flex: 1,
   },
 });
 
