@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, StyleSheet , Text} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AccountList from '../../Components/AccountList.tsx';
 import IconButton from '../../Components/IconButton.tsx';
@@ -18,8 +18,19 @@ export default function AccountScreen({ navigation, route }) {
     }
     return (
         <View style={{ flex: 1, justifyContent: 'center' }}>
-            <IconButton iconName='exit-outline' onPress={logout}></IconButton>
+            <View  style={styles.containerButton}>
+                <IconButton iconName='exit-outline' iconColor={'#D9D9D9'} onPress={logout} iconSize={40}></IconButton>
+            </View>
             <AccountList />
         </View>
     );
 }
+
+const styles = StyleSheet.create({
+    containerButton: {
+      paddingLeft: 12,
+      flexDirection: 'row',
+      height: '100%',
+      backgroundColor: '#050d25', // Viola estremamente scuro
+    },
+});
