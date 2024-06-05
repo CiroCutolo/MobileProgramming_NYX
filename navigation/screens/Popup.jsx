@@ -53,6 +53,8 @@ export default function Popup({ modalVisible, chiudiPopup}) {
       console.error('Errore nella verifica delle credenziali', error);
       setError('Errore nella verifica delle credenziali');
     }
+    setEmail('');
+    setPassword('');
   };
 
   return (
