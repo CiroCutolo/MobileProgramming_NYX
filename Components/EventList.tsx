@@ -299,8 +299,11 @@ const EventList: React.FC = () => {
     return (
     <ZoomableView onPress={() => handleEventPressEventDetails(item)}>
       <View style={styles.eventContainer}>
-        <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
-          <View>
+          { item.data_evento >= getCurrentDate() &&(
+          <IconButton buttonStyle={styles.eventAddpersonIcon} iconName='person-add-outline' iconSize={25} iconColor={'#D9D9D9'} onPress={() => handleEventPressUserInsert(item)} />
+          )
+          }
+      <View>
             <Image
               style={styles.eventIconImg}
                 source={imageSource}

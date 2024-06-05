@@ -35,7 +35,7 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
         today.getMonth(),
         today.getDate()
       );//Se si vuole aggiungere un minore avente meno di 14 anni, viene bloccata l'aggiunta.
-      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome) || date >= fourteenYearsAgo ) {
+      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome) ) {
         setAffirmativeOrNegative(false);
         setShowPopup(true);
         return;
