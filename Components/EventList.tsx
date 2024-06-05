@@ -194,6 +194,8 @@ const EventList: React.FC = () => {
       filtered = filtered.filter(event => event.data_evento < currentDate);
     } else if (item === 'Evento Futuro') {
       filtered = filtered.filter(event => event.data_evento >= currentDate);
+    }else {
+      filtered = filtered.filter(event => (event.data_evento >= currentDate && event.data_evento < currentDate))
     }
 
     //Filtraggio basato sul titolo, a ricerca libera.

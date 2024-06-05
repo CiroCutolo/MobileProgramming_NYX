@@ -29,12 +29,13 @@ const PartecipantAdderPopup: React.FC<PartecipantAdderPopupProps> = ({ modalVisi
   const aggiungiPartecipazione = async () => {
     try {
       //Si controlla il formato del nome, cognome e della data
-      const sixteenYearsAgo = new Date(
-        date.getFullYear() - 14,
-        date.getMonth(),
-        date.getDate()
+      const today = new Date();
+      const fourteenYearsAgo = new Date(
+        today.getFullYear() - 14,
+        today.getMonth(),
+        today.getDate()
       );//Se si vuole aggiungere un minore avente meno di 14 anni, viene bloccata l'aggiunta.
-      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome) || date >= sixteenYearsAgo ) {
+      if (!nome || !cognome || !date || !/^[A-Za-z\s\-]+$/.test(nome) || !/^[A-Za-z\s\-]+$/.test(cognome) || date >= fourteenYearsAgo ) {
         setAffirmativeOrNegative(false);
         setShowPopup(true);
         return;
