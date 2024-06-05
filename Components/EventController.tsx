@@ -40,7 +40,7 @@ const EventController = ({ evento }) => {
       }
     }
   }, [evento]);
-  
+
   //gestisce il cambiamento del TextInput relativo al titolo
   const handleTitleChange = (text) => {
     setTitleValue(text);
@@ -108,7 +108,7 @@ const EventController = ({ evento }) => {
           );
           alert('Evento inserito correttamente');
         }
-        
+
         handleEmptyFields(); //svuota campi
         navigation.navigate('Account'); //navigazione alla schemrata Account
       } else {
@@ -123,10 +123,10 @@ const EventController = ({ evento }) => {
 
   //gestione svuotamento campi
   const handleEmptyFields = () => {
-    setTitleValue(''); //svuota TextINput titolo
-    setDescriptionValue(''); //svuota TextINput descrizione
-    setCapacityValue(''); //svuota TextINput capacità
-    setDateFlag(false); //ripristina il valore di default del Text che compre il datepicker
+    setTitleValue(''); //svuota TextInput titolo
+    setDescriptionValue(''); //svuota TextInput descrizione
+    setCapacityValue(''); //svuota TextInput capienza
+    setDateFlag(false); //svuota TextInput dataevento
     setSelectedImageURI(null); // Svuota lo stato dell'immagine
     setImagePath(''); // Svuota il percorso dell'immagine
   };
@@ -156,7 +156,7 @@ const EventController = ({ evento }) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>{/**/}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <ScrollView style={styles.container}>
         <View style={styles.body}>
           <TouchableOpacity onPress={handleImagePicker}>
@@ -203,9 +203,11 @@ const EventController = ({ evento }) => {
               }}
             />
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={styles.input}>
-                {dateFlag ? date.toLocaleDateString('it-IT') : "Seleziona la data dell'evento"}
-              </Text>
+              <TextInput style={styles.input}
+              placeholder="Seleziona la data dell'evento"
+              value={dateFlag ? date.toLocaleDateString('it-IT') : ""}
+              editable={false}
+              />
             </TouchableOpacity>
             <TextInput
               style={styles.input}
@@ -274,8 +276,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#edf6d6',
     color: 'black',
     borderRadius: 10,
-    marginVertical: 10,
-    padding: 5,
+    marginVertical: '3%',
+    padding: '1.5%',
   },
   buttonRow: {
     flexDirection: 'row',
@@ -286,8 +288,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#917ea3',
     color: 'white',
     borderRadius: 10,
-    padding: 10,
-    marginTop: 10,
+    padding: '3.5%',
+    marginTop: '10%',
   },
   deleteButton: {
     fontSize: 25,
