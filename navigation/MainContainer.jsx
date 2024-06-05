@@ -32,12 +32,21 @@ export default function MainContainer() {
         setModalVisible(false);
     };
 
-    const checkEmailAndNavigate = async (navigation) => {
+    const checkEmailAndNavigateinAccount = async (navigation) => {
         const email = await AsyncStorage.getItem('@email');
         if (email === null) {
             apriPopup();
         } else {
             navigation.navigate(accountName);
+        }
+    };
+
+    const checkEmailAndNavigateinEventController = async (navigation) => {
+        const email = await AsyncStorage.getItem('@email');
+        if (email === null) {
+            apriPopup();
+        } else {
+            navigation.navigate(addEventName);
         }
     };
 
@@ -90,7 +99,15 @@ export default function MainContainer() {
             >
                 <Tab.Screen name={homeName} component={HomeScreen} />
                 <Tab.Screen name={statisticName} component={StatisticScreen} />
-                <Tab.Screen name={addEventName} component={EventControllerScreen} />
+                <Tab.Screen name={addEventName} 
+                            component={EventControllerScreen} 
+                            listeners={({ navigation }) => ({
+                                tabPress: async (e) => {
+                                    e.preventDefault(); 
+                                    await checkEmailAndNavigateinEventController(navigation);
+                                },
+                            })}
+                            />
                 <Tab.Screen name={calendarName} component={CalendarScreen} />
                 <Tab.Screen
                     name={accountName}
@@ -98,7 +115,7 @@ export default function MainContainer() {
                     listeners={({ navigation }) => ({
                         tabPress: async (e) => {
                             e.preventDefault(); 
-                            await checkEmailAndNavigate(navigation);
+                            await checkEmailAndNavigateinAccount(navigation);
                         },
                     })}
                 />
