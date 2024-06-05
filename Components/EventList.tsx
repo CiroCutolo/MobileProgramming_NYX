@@ -174,8 +174,9 @@ const EventList: React.FC = () => {
 
   //Definizioni dei valori dei filtri.
   const data = [
-    { key: '1', value: 'Evento Passato' },
-    { key: '2', value: 'Evento Futuro' }
+    { key: '1', value: 'Evento passato' },
+    { key: '2', value: 'Evento futuro' },
+    { key: '3', value: 'Tutti gli eventi'}
   ];
 
   //Funzione utile all'ottenimento della data corrente come iso-string contenente solo 'ANNO-MESE-GIORNO'
@@ -190,10 +191,12 @@ const EventList: React.FC = () => {
     let filtered = events;
 
     //Filtraggio degli eventi in base alle etichette del dropdown select.
-    if (item === 'Evento Passato') {
+    if (item === 'Evento passato') {
       filtered = filtered.filter(event => event.data_evento < currentDate);
-    } else if (item === 'Evento Futuro') {
+    } else if (item === 'Evento futuro') {
       filtered = filtered.filter(event => event.data_evento >= currentDate);
+    }else if (item === 'Tutti gli eventi'){
+      filtered = events;
     }else {
       filtered = events;
     }
