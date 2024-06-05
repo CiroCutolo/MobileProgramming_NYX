@@ -5,7 +5,6 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Image, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
 import HomeScreen from './screens/HomeScreen';
 import AccountScreen from './screens/AccountScreen';
 import CalendarScreen from './screens/CalendarScreen';
@@ -24,13 +23,22 @@ const Tab = createBottomTabNavigator();
 
 export default function MainContainer() {
     const [modalVisible, setModalVisible] = useState(false);
-    const email = AsyncStorage.getItem('@email');
+
     const apriPopup = () => {
         setModalVisible(true);
     };
 
     const chiudiPopup = () => {
         setModalVisible(false);
+    };
+
+    const checkEmailAndNavigate = async (navigation) => {
+        const email = await AsyncStorage.getItem('@email');
+        if (email === null) {
+            apriPopup();
+        } else {
+            navigation.navigate(accountName);
+        }
     };
 
     return (
@@ -87,14 +95,12 @@ export default function MainContainer() {
                 <Tab.Screen
                     name={accountName}
                     component={AccountScreen}
-                    listeners={{
-                        tabPress: (e) => {
-                            if (email == null) {
-                                e.preventDefault();
-                                apriPopup();
-                            }
+                    listeners={({ navigation }) => ({
+                        tabPress: async (e) => {
+                            e.preventDefault(); 
+                            await checkEmailAndNavigate(navigation);
                         },
-                    }}
+                    })}
                 />
                 <Tab.Screen name="Registrazione" component={Registrazione} options={{ tabBarButton: () => null }} />
             </Tab.Navigator>
