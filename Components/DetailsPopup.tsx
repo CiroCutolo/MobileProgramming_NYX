@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Modal, Text, View, SafeAreaView, Keyboard, TouchableWithoutFeedback, Image } from 'react-native';
+import { StyleSheet, Modal, Text, View, SafeAreaView, Keyboard, TouchableWithoutFeedback, Image, Dimensions, PixelRatio } from 'react-native';
 import IconButton from './IconButton';
 
 interface Evento {
@@ -18,6 +18,14 @@ interface DetailsPopupProps {
   modalVisible: boolean; //Check per la visibilità del popup.
   chiudiPopup: () => void; //Metodo intrinseco di chiusura.
   item: Evento; //Item di tipo evento utile a ricevere i dettagli dell'evento da mostrare.
+}
+
+const { width, height } = Dimensions.get('window');
+const scale = width / 375;
+
+function normalize(size: number) {
+  const newSize = size * scale;
+  return Math.round(PixelRatio.roundToNearestPixel(newSize));
 }
 
 //Definizione del funciton component DetailsPopup. 
@@ -67,55 +75,55 @@ const styles = StyleSheet.create({
   },
   popup: {
     backgroundColor: '#f5ebcf',
-    padding: 20,
-    borderRadius: 20,
-    width: 350,
+    padding: normalize(20),
+    borderRadius: normalize(20),
+    width: width * 0.9,
     alignContent: 'center',
-    height: 500,
+    height: height * 0.7,
   },
   eventImagePopup: {
-    width: 300,
-    height: 150,
-    borderRadius: 10,
+    width: width * 0.8,
+    height: height * 0.2,
+    borderRadius: normalize(10),
     alignSelf: 'center',
   },
   eventTitlePopup: {
     fontWeight: 'bold',
-    fontSize: 18,
+    fontSize: normalize(18),
     alignSelf: 'center',
-    marginBottom: 10,
+    marginBottom: normalize(10),
     color: '#050d25',
   },
   eventInfosContainerPopup: {
-    top: 20
+    top: normalize(20),
   },
   eventDatePopup: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: normalize(16),
+    marginBottom: normalize(10),
     color: '#050d25',
   },
   eventDescriptionPopup: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: normalize(16),
+    marginBottom: normalize(10),
     color: '#050d25',
   },
   eventOrganizerPopup: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: normalize(16),
+    marginBottom: normalize(10),
     color: '#050d25',
-    top: 150
+    top: height * 0.3,
   },
   eventParticipantsPopup: {
-    fontSize: 16,
+    fontSize: normalize(16),
     color: '#050d25',
     alignSelf: 'flex-end',
-    top: 145
+    top: height * 0.3,
   },
   eventPartecipantsIcon: {
     position: 'absolute',
     alignSelf: 'flex-end',
-    top: 220,
-  }
+    top: height * 0.4,
+  },
 });
 
 export default DetailsPopup;
